@@ -16,3 +16,8 @@ root.render(
     <App />
   </React.StrictMode>
 );
+
+// Register PWA only in local development
+if (typeof window !== 'undefined' && window.location.hostname === 'localhost') {
+  import('/pwa-register.js').catch(() => {});
+}
