@@ -19,5 +19,8 @@ root.render(
 
 // Register PWA only in local development
 if (typeof window !== 'undefined' && window.location.hostname === 'localhost') {
-  import('/pwa-register.js').catch(() => {});
+  const script = document.createElement('script');
+  script.type = 'module';
+  script.src = '/pwa-register.js';
+  document.body.appendChild(script);
 }
