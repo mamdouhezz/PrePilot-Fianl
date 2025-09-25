@@ -1,0 +1,48 @@
+export const validationFlow = {
+  "name": "validation_flow",
+  "description": "Algorithm flow to validate campaign KPIs against Saudi market benchmarks",
+  "inputs": ["impressions", "clicks", "ctr", "cpc", "cpm", "conversions", "cvr", "roas", "budget"],
+  "benchmarks": {
+    "ctr": { "min": 0.8, "max": 2.5, "unit": "%" },
+    "cpc": { "min": 0.3, "max": 1.2, "unit": "ريال" },
+    "cpm": { "min": 4, "max": 10, "unit": "ريال" },
+    "cvr": { "min": 1.5, "max": 5, "unit": "%" },
+    "roas": { "min": 3, "max": 7, "unit": "x" }
+  },
+  "logic": [
+    {
+      "metric": "ctr",
+      "condition": "value < benchmarks.ctr.min",
+      "status": "warning",
+      "message": "CTR أقل من المتوسط في السوق. راجع جودة الإعلانات أو الاستهداف."
+    },
+    {
+      "metric": "ctr",
+      "condition": "value > benchmarks.ctr.max",
+      "status": "note",
+      "message": "CTR أعلى من المتوقع — تأكد أن النقرات حقيقية وليست نقرات عشوائية."
+    },
+    {
+      "metric": "cpm",
+      "condition": "value > benchmarks.cpm.max",
+      "status": "warning",
+      "message": "تكلفة الـ CPM أعلى من المعتاد، قد تحتاج إلى تعديل المنصات أو توقيت الإعلانات."
+    },
+    {
+      "metric": "roas",
+      "condition": "value < benchmarks.roas.min",
+      "status": "fail",
+      "message": "ROAS ضعيف مقارنة بالسوق — الخطة قد لا تحقق عائد مجدي."
+    },
+    {
+      "metric": "roas",
+      "condition": "value >= benchmarks.roas.min && value <= benchmarks.roas.max",
+      "status": "pass",
+      "message": "ROAS متوافق مع الـ Benchmarks في السوق السعودي."
+    }
+  ],
+  "output": {
+    "status": "Aggregated pass/warning/fail",
+    "recommendations": "List of triggered messages based on conditions"
+  }
+} as const;

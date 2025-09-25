@@ -1,0 +1,79 @@
+{
+  "template": "interactive_media_plan",
+  "version": "1.0",
+  "description": "Interactive dashboard-style report allowing users to tweak inputs and see updated KPIs instantly.",
+  "layout": {
+    "cover": {
+      "title": "⚡ Interactive PrePilot Report",
+      "subtitle": "غيّر الميزانية أو الأهداف وشوف النتائج مباشرة"
+    },
+    "controls": [
+      {
+        "type": "slider",
+        "label": "الميزانية",
+        "field": "budget",
+        "min": 1000,
+        "max": 500000,
+        "step": 1000
+      },
+      {
+        "type": "multi-select",
+        "label": "الأهداف",
+        "field": "goals",
+        "options": ["Awareness", "Traffic", "Leads", "Sales", "Engagement"]
+      },
+      {
+        "type": "multi-select",
+        "label": "المنصات",
+        "field": "selectedPlatforms",
+        "options": ["Meta", "Google Search", "YouTube", "TikTok", "Snapchat", "LinkedIn", "Twitter"]
+      },
+      {
+        "type": "dropdown",
+        "label": "الموسم",
+        "field": "season",
+        "options": ["Default", "Ramadan", "Hajj", "BackToSchool", "WhiteFriday", "Summer"]
+      }
+    ],
+    "sections": [
+      {
+        "name": "Budget Allocation",
+        "style": "interactive_chart",
+        "visualization": "dynamic_pie_chart",
+        "updatesOn": ["budget", "selectedPlatforms", "goals"]
+      },
+      {
+        "name": "Expected KPIs",
+        "style": "interactive_table",
+        "visualization": "live_bar_chart",
+        "updatesOn": ["budget", "goals", "season"]
+      },
+      {
+        "name": "Seasonality Impact",
+        "style": "interactive_note",
+        "visualization": "live_line_chart",
+        "updatesOn": ["season"]
+      },
+      {
+        "name": "Insights & Recommendations",
+        "style": "live_checklist",
+        "updatesOn": ["budget", "goals", "season"]
+      }
+    ]
+  },
+  "exportOptions": {
+    "formats": ["Interactive Web", "PDF Snapshot"],
+    "branding": {
+      "logoPosition": "top-right",
+      "colors": {
+        "primary": "#2563EB",
+        "secondary": "#10B981",
+        "neutral": "#F3F4F6"
+      },
+      "fonts": {
+        "headers": "Rubik",
+        "body": "Inter"
+      }
+    }
+  }
+}

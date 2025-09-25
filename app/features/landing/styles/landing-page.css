@@ -1,0 +1,482 @@
+/**
+ * Landing Page Custom Styles
+ * High-performance, high-contrast design system for PrePilot landing page
+ */
+
+/* ===== CSS CUSTOM PROPERTIES ===== */
+:root {
+  /* Light Mode Colors - Professional Palette */
+  --landing-bg: #ffffff;
+  --landing-bg-secondary: #fafbfc;
+  --landing-bg-tertiary: #f8fafc;
+  --landing-foreground: #0f172a;
+  --landing-foreground-secondary: #1e293b;
+  --landing-foreground-muted: #1f2937;
+  --landing-primary: #8b5cf6;
+  --landing-primary-light: #a78bfa;
+  --landing-primary-dark: #7c3aed;
+  --landing-primary-hover: #7c3aed;
+  --landing-secondary: #f59e0b;
+  --landing-secondary-light: #fbbf24;
+  --landing-secondary-dark: #d97706;
+  --landing-secondary-hover: #d97706;
+  --landing-accent: #06b6d4;
+  --landing-accent-light: #22d3ee;
+  --landing-success: #10b981;
+  --landing-success-light: #34d399;
+  --landing-warning: #f59e0b;
+  --landing-error: #ef4444;
+  --landing-border: #e2e8f0;
+  --landing-border-light: #f1f5f9;
+  --landing-shadow: rgba(15, 23, 42, 0.08);
+  --landing-shadow-lg: rgba(15, 23, 42, 0.12);
+  
+  /* Dark Mode Colors - Professional Dark Palette */
+  --landing-bg-dark: #0f172a;
+  --landing-bg-secondary-dark: #1e293b;
+  --landing-bg-tertiary-dark: #334155;
+  --landing-foreground-dark: #f8fafc;
+  --landing-foreground-secondary-dark: #e2e8f0;
+  --landing-foreground-muted-dark: #d1d5db;
+  --landing-primary-dark: #a78bfa;
+  --landing-primary-light-dark: #c4b5fd;
+  --landing-primary-hover-dark: #9333ea;
+  --landing-secondary-dark: #fbbf24;
+  --landing-secondary-light-dark: #fcd34d;
+  --landing-secondary-hover-dark: #f59e0b;
+  --landing-accent-dark: #22d3ee;
+  --landing-accent-light-dark: #67e8f9;
+  --landing-success-dark: #34d399;
+  --landing-success-light-dark: #6ee7b7;
+  --landing-warning-dark: #fbbf24;
+  --landing-error-dark: #f87171;
+  --landing-border-dark: #334155;
+  --landing-border-light-dark: #475569;
+  --landing-shadow-dark: rgba(0, 0, 0, 0.25);
+  --landing-shadow-lg-dark: rgba(0, 0, 0, 0.35);
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --landing-bg: var(--landing-bg-dark);
+    --landing-bg-secondary: var(--landing-bg-secondary-dark);
+    --landing-bg-tertiary: var(--landing-bg-tertiary-dark);
+    --landing-foreground: var(--landing-foreground-dark);
+    --landing-foreground-secondary: var(--landing-foreground-secondary-dark);
+    --landing-foreground-muted: var(--landing-foreground-muted-dark);
+    --landing-primary: var(--landing-primary-dark);
+    --landing-primary-light: var(--landing-primary-light-dark);
+    --landing-primary-hover: var(--landing-primary-hover-dark);
+    --landing-secondary: var(--landing-secondary-dark);
+    --landing-secondary-light: var(--landing-secondary-light-dark);
+    --landing-secondary-hover: var(--landing-secondary-hover-dark);
+    --landing-accent: var(--landing-accent-dark);
+    --landing-accent-light: var(--landing-accent-light-dark);
+    --landing-success: var(--landing-success-dark);
+    --landing-success-light: var(--landing-success-light-dark);
+    --landing-warning: var(--landing-warning-dark);
+    --landing-error: var(--landing-error-dark);
+    --landing-border: var(--landing-border-dark);
+    --landing-border-light: var(--landing-border-light-dark);
+    --landing-shadow: var(--landing-shadow-dark);
+    --landing-shadow-lg: var(--landing-shadow-lg-dark);
+  }
+}
+
+/* ===== TYPOGRAPHY SYSTEM ===== */
+.landing-text-hero {
+  font-family: 'IBM Plex Sans Arabic', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: clamp(2.5rem, 5vw, 4rem);
+  font-weight: 800;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  color: var(--landing-foreground);
+}
+
+.landing-text-h1 {
+  font-family: 'IBM Plex Sans Arabic', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: clamp(2rem, 4vw, 3rem);
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+  color: var(--landing-foreground);
+}
+
+.landing-text-h2 {
+  font-family: 'IBM Plex Sans Arabic', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: clamp(1.5rem, 3vw, 2.25rem);
+  font-weight: 600;
+  line-height: 1.3;
+  color: var(--landing-foreground);
+}
+
+.landing-text-h3 {
+  font-family: 'IBM Plex Sans Arabic', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: clamp(1.25rem, 2.5vw, 1.875rem);
+  font-weight: 600;
+  line-height: 1.4;
+  color: var(--landing-foreground);
+}
+
+.landing-text-body {
+  font-family: 'IBM Plex Sans Arabic', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: 1.125rem;
+  line-height: 1.6;
+  /* Removed color override to allow Tailwind classes to work */
+}
+
+.landing-text-body-lg {
+  font-family: 'IBM Plex Sans Arabic', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: 1.25rem;
+  line-height: 1.6;
+  /* Removed color override to allow Tailwind classes to work */
+}
+
+/* ===== GRADIENT ANIMATIONS ===== */
+@keyframes gradient-shift {
+  0%, 100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+.landing-gradient-animated {
+  background: linear-gradient(
+    -45deg,
+    var(--landing-primary),
+    var(--landing-secondary),
+    var(--landing-primary),
+    var(--landing-secondary)
+  );
+  background-size: 400% 400%;
+  animation: gradient-shift 8s ease infinite;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ===== BUTTON SYSTEM ===== */
+.landing-btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem 2.5rem;
+  font-family: 'IBM Plex Sans Arabic', sans-serif;
+  font-size: 1rem;
+  font-weight: 600;
+  color: white;
+  background: linear-gradient(135deg, var(--landing-primary) 0%, var(--landing-primary-dark) 100%);
+  border: none;
+  border-radius: 1rem;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  text-decoration: none;
+  min-height: 3.5rem;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 4px 14px 0 rgba(139, 92, 246, 0.25);
+}
+
+.landing-btn-primary::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: left 0.5s;
+}
+
+.landing-btn-primary:hover::before {
+  left: 100%;
+}
+
+.landing-btn-primary:hover {
+  background: linear-gradient(135deg, var(--landing-primary-dark) 0%, var(--landing-primary) 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(139, 92, 246, 0.4);
+}
+
+.landing-btn-primary:active {
+  transform: translateY(0);
+  box-shadow: 0 4px 14px 0 rgba(139, 92, 246, 0.25);
+}
+
+.landing-btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem 2.5rem;
+  font-family: 'IBM Plex Sans Arabic', sans-serif;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--landing-foreground);
+  background: var(--landing-bg);
+  border: 2px solid var(--landing-border);
+  border-radius: 1rem;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  text-decoration: none;
+  min-height: 3.5rem;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 2px 8px var(--landing-shadow);
+}
+
+.landing-btn-secondary::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 0;
+  height: 100%;
+  background: var(--landing-primary);
+  transition: width 0.3s ease;
+  z-index: -1;
+}
+
+.landing-btn-secondary:hover::before {
+  width: 100%;
+}
+
+.landing-btn-secondary:hover {
+  border-color: var(--landing-primary);
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(139, 92, 246, 0.15);
+}
+
+.landing-btn-secondary:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 8px var(--landing-shadow);
+}
+
+.landing-btn-ghost {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.75rem 1.5rem;
+  font-family: 'IBM Plex Sans Arabic', sans-serif;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--landing-foreground-muted);
+  background: transparent;
+  border: 1px solid var(--landing-border-light);
+  border-radius: 0.75rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-decoration: none;
+  min-height: 2.75rem;
+}
+
+.landing-btn-ghost:hover {
+  color: var(--landing-primary);
+  border-color: var(--landing-primary);
+  background: rgba(139, 92, 246, 0.05);
+}
+
+/* ===== CARD SYSTEM ===== */
+.landing-card {
+  background: var(--landing-bg);
+  border: 1px solid var(--landing-border);
+  border-radius: 1.5rem;
+  padding: 2rem;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 6px -1px var(--landing-shadow);
+  position: relative;
+  overflow: hidden;
+}
+
+.landing-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, var(--landing-primary), var(--landing-secondary));
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.landing-card:hover::before {
+  opacity: 1;
+}
+
+.landing-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 25px 50px -12px var(--landing-shadow-lg);
+  border-color: var(--landing-primary);
+}
+
+.landing-card-feature {
+  background: var(--landing-bg-secondary);
+  border: 1px solid var(--landing-border);
+  border-radius: 2rem;
+  padding: 3rem 2rem;
+  text-align: center;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+  backdrop-filter: blur(10px);
+}
+
+.landing-card-feature::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, var(--landing-primary), var(--landing-secondary), var(--landing-accent));
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.landing-card-feature::after {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle, rgba(139, 92, 246, 0.1) 0%, transparent 70%);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+}
+
+.landing-card-feature:hover::before {
+  opacity: 1;
+}
+
+.landing-card-feature:hover::after {
+  opacity: 1;
+}
+
+.landing-card-feature:hover {
+  transform: translateY(-12px);
+  box-shadow: 0 32px 64px -12px var(--landing-shadow-lg);
+  background: var(--landing-bg);
+}
+
+.landing-card-testimonial {
+  background: var(--landing-bg);
+  border: 1px solid var(--landing-border);
+  border-radius: 1.5rem;
+  padding: 2.5rem;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 6px -1px var(--landing-shadow);
+  position: relative;
+}
+
+.landing-card-testimonial::before {
+  content: '"';
+  position: absolute;
+  top: -0.5rem;
+  left: 1.5rem;
+  font-size: 4rem;
+  color: var(--landing-primary);
+  font-family: serif;
+  line-height: 1;
+  opacity: 0.3;
+}
+
+.landing-card-testimonial:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 20px 40px -12px var(--landing-shadow-lg);
+  border-color: var(--landing-primary);
+}
+
+/* ===== SECTION SPACING ===== */
+.landing-section {
+  padding: 5rem 0;
+}
+
+.landing-section-lg {
+  padding: 8rem 0;
+}
+
+.landing-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 1.5rem;
+}
+
+@media (min-width: 768px) {
+  .landing-container {
+    padding: 0 2rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .landing-container {
+    padding: 0 3rem;
+  }
+}
+
+/* ===== RESPONSIVE UTILITIES ===== */
+.landing-hidden-mobile {
+  display: none;
+}
+
+@media (min-width: 768px) {
+  .landing-hidden-mobile {
+    display: block;
+  }
+}
+
+.landing-hidden-desktop {
+  display: block;
+}
+
+@media (min-width: 768px) {
+  .landing-hidden-desktop {
+    display: none;
+  }
+}
+
+/* ===== PERFORMANCE OPTIMIZATIONS ===== */
+.landing-optimized-image {
+  will-change: transform;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  perspective: 1000px;
+}
+
+/* ===== ACCESSIBILITY ===== */
+@media (prefers-reduced-motion: reduce) {
+  .landing-gradient-animated {
+    animation: none;
+  }
+  
+  .landing-card:hover,
+  .landing-card-feature:hover,
+  .landing-btn-primary:hover,
+  .landing-btn-secondary:hover {
+    transform: none;
+  }
+}
+
+/* Focus styles for accessibility */
+.landing-btn-primary:focus,
+.landing-btn-secondary:focus {
+  outline: 2px solid var(--landing-primary);
+  outline-offset: 2px;
+}
+
+/* ===== RTL SUPPORT ===== */
+[dir="rtl"] .landing-text-hero,
+[dir="rtl"] .landing-text-h1,
+[dir="rtl"] .landing-text-h2,
+[dir="rtl"] .landing-text-h3,
+[dir="rtl"] .landing-text-body,
+[dir="rtl"] .landing-text-body-lg {
+  font-family: 'IBM Plex Sans Arabic', -apple-system, BlinkMacSystemFont, sans-serif;
+  direction: rtl;
+  text-align: right;
+}

@@ -1,0 +1,125 @@
+{
+  "template": "hybrid_media_plan_report",
+  "version": "1.0",
+  "description": "Unified report template that can render either Marketer (detailed) or Client (visual) modes.",
+  "modes": {
+    "marketer": {
+      "cover": {
+        "title": "📊 خطة إعلانات مبدئية (Marketer View)",
+        "subtitle": "تفاصيل كاملة مع Benchmarks وأرقام دقيقة"
+      },
+      "sections": [
+        {
+          "name": "Executive Summary",
+          "style": "highlight_box",
+          "content": [
+            "👋 الخطة هذه مبنية على Benchmarks السوق السعودي",
+            "⚡ تساعدك تهيئ Pilot Campaign بخطوات مدروسة"
+          ]
+        },
+        {
+          "name": "Budget Allocation",
+          "style": "2-column table",
+          "columns": ["Platform", "Budget (SAR)", "Percentage %"],
+          "visualization": "pie_chart"
+        },
+        {
+          "name": "Expected KPIs",
+          "style": "multi-table",
+          "tables": [
+            {
+              "title": "Per Platform KPIs",
+              "columns": ["Platform", "Impressions", "Clicks", "Conversions", "ROAS"],
+              "visualization": "bar_chart"
+            },
+            {
+              "title": "Aggregated KPIs",
+              "columns": ["Total Impressions", "Total Clicks", "Total Conversions", "Overall ROAS"]
+            }
+          ]
+        },
+        {
+          "name": "Seasonality Impact",
+          "style": "info_box",
+          "visualization": "line_chart",
+          "content": [
+            "📈 الموسم {season} يرفع المشاهدات ويخفض تكلفة النقرة"
+          ]
+        },
+        {
+          "name": "Insights & Recommendations",
+          "style": "bullet_points",
+          "content": [
+            "✅ TikTok ممتاز للوعي",
+            "✅ LinkedIn فعال جدًا مع B2B",
+            "⚠️ ركز على منصتين فقط إذا الميزانية محدودة"
+          ]
+        }
+      ]
+    },
+    "client": {
+      "cover": {
+        "title": "🚀 خطتك الإعلانية المبدئية (Client View)",
+        "subtitle": "جاهزة خلال دقيقة… واضحة وبصرية"
+      },
+      "sections": [
+        {
+          "name": "ملخص سريع",
+          "style": "highlight_box",
+          "content": [
+            "📌 هذه الخطة أول إشارة تساعدك تشوف النتائج المتوقعة",
+            "💡 سهلة الفهم والنقاش مع فريقك"
+          ]
+        },
+        {
+          "name": "توزيع الميزانية",
+          "style": "visual_only",
+          "visualization": "donut_chart",
+          "note": "كيف تنقسم ميزانيتك بين المنصات"
+        },
+        {
+          "name": "وش تتوقع من النتائج؟",
+          "style": "cards_grid",
+          "cards": [
+            { "title": "👀 مشاهدات", "value": "number", "style": "big_number" },
+            { "title": "🖱️ نقرات", "value": "number", "style": "big_number" },
+            { "title": "🤝 عملاء محتملين", "value": "number", "style": "big_number" },
+            { "title": "💰 العائد", "value": "ratio", "style": "big_number" }
+          ]
+        },
+        {
+          "name": "تأثير الموسم",
+          "style": "visual_note",
+          "visualization": "season_chart",
+          "content": [
+            "🎯 موسم {season} يعطي دفعة قوية للنتائج"
+          ]
+        },
+        {
+          "name": "توصيات سريعة",
+          "style": "checklist",
+          "content": [
+            "✅ TikTok ممتاز للانتشار",
+            "✅ Google Search مباشر للـ Leads",
+            "⚠️ لا تشتت ميزانيتك على منصات كثيرة"
+          ]
+        }
+      ]
+    }
+  },
+  "exportOptions": {
+    "formats": ["PDF", "HTML", "Interactive Web"],
+    "branding": {
+      "logoPosition": "top-right",
+      "colors": {
+        "primary": "#1D4ED8",
+        "secondary": "#9333EA",
+        "neutral": "#F9FAFB"
+      },
+      "fonts": {
+        "headers": "Rubik",
+        "body": "Inter"
+      }
+    }
+  }
+}

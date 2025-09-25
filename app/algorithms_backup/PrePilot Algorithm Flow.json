@@ -1,0 +1,76 @@
+[User Inputs]
+   ├─ Industry & Sub-Industry
+   ├─ Budget (SAR)
+   ├─ Goals (Awareness / Leads / Sales...)
+   ├─ Platforms (selected or auto)
+   ├─ Seasonality / Occasion
+   ├─ Avg Ticket / ROI Expectation (optional)
+   ↓
+
+[Step 1: Budget Allocation Algorithm]
+   ├─ Load defaultPlatformSplit(industry)
+   ├─ Adjust with goalWeights
+   ├─ Normalize to 100%
+   ↓
+   → Output: Budget لكل منصة
+
+[Step 2: Seasonality Adjustment Algorithm]
+   ├─ Load multipliers for selected occasion
+   ├─ Adjust CPM, CTR, CPC
+   ↓
+   → Output: موسمية معدّلة للـbenchmarks
+
+[Step 3: Goal Weighting Algorithm]
+   ├─ Apply goal multipliers (Awareness ↑CTR, Leads ↑CVR…)
+   ├─ Re-balance platform weights
+   ↓
+   → Output: Benchmarks مضبوطة على الهدف
+
+[Step 4: KPI Estimation Algorithm]
+   For each Platform:
+      - Impressions = (Budget / CPM) × 1000
+      - Clicks = Impressions × (CTR / 100)
+      - CPC = Budget / Clicks
+      - Leads = Clicks × (CVR / 100)
+      - Revenue = Leads × AvgTicket
+      - ROAS = Revenue / Budget
+   ↓
+   → Output: KPIs per platform
+
+[Step 5: Aggregation]
+   ├─ Sum across platforms
+   ├─ Compute totals: Spent, Impressions, Clicks, Leads, Revenue, ROAS
+   ↓
+
+[Step 6: Sanity Guardrails]
+   ├─ Clamp CPM (8–300 SAR), CTR (0.2–8%), CVR ranges
+   ├─ If unrealistic (Clicks≈0) → Replace with warnings
+   ↓
+
+[Step 7: Expectation Validation]
+   ├─ Compare ROAS_total vs Expected_ROAS
+   ├─ If gap >1.5× → Warning ⚠️
+   ├─ If ROAS <1 → Risk note
+   ↓
+
+[Step 8: Confidence Band Algorithm]
+   ├─ Apply ±15–25% uncertainty margin
+   ├─ Show optimistic/pessimistic scenario
+   ↓
+
+[Step 9: Recommendation Engine]
+   ├─ Propose reallocation (shift 10–20% to better platform)
+   ├─ Suggest missing channels (e.g., LinkedIn for B2B)
+   ├─ Season-based advice
+   ↓
+
+[Step 10: AI Commentary Generator]
+   ├─ Build plain Arabic (عامية سعودية) narrative
+   ├─ Mix numbers + insights into natural copy
+   ↓
+
+[Final Output: Results Page]
+   ├─ Table of KPIs per platform
+   ├─ Charts (budget split, clicks, leads, ROAS)
+   ├─ AI-written summary & recommendations
+   ├─ Options: What-If Slider, Export PDF, Share Link

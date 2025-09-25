@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PWA Test - PrePilot</title>
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#8B5CF6">
+</head>
+<body style="font-family: Arial, sans-serif; padding: 20px; background: #1F2937; color: white;">
+    <h1>🚀 PrePilot PWA Test</h1>
+    
+    <div style="margin: 20px 0;">
+        <h2>✅ PWA Features Test</h2>
+        <ul>
+            <li>✅ Manifest: <span id="manifest-status">Loading...</span></li>
+            <li>✅ Service Worker: <span id="sw-status">Loading...</span></li>
+            <li>✅ Install Prompt: <span id="install-status">Loading...</span></li>
+            <li>✅ Offline Support: <span id="offline-status">Loading...</span></li>
+        </ul>
+    </div>
+    
+    <div style="margin: 20px 0;">
+        <button id="install-btn" style="display: none; padding: 10px 20px; background: #8B5CF6; color: white; border: none; border-radius: 5px; cursor: pointer;">
+            📱 Install PrePilot
+        </button>
+    </div>
+    
+    <div style="margin: 20px 0;">
+        <button onclick="testOffline()" style="padding: 10px 20px; background: #10B981; color: white; border: none; border-radius: 5px; cursor: pointer;">
+            🔄 Test Offline Mode
+        </button>
+    </div>
+    
+    <script>
+        // Test Manifest
+        fetch('/manifest.json')
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('manifest-status').textContent = '✅ Loaded';
+                document.getElementById('manifest-status').style.color = '#10B981';
+            })
+            .catch(error => {
+                document.getElementById('manifest-status').textContent = '❌ Failed';
+                document.getElementById('manifest-status').style.color = '#EF4444';
+            });
+        
+        // Test Service Worker
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/sw.js')
+                .then(registration => {
+                    document.getElementById('sw-status').textContent = '✅ Registered';
+                    document.getElementById('sw-status').style.color = '#10B981';
+                })
+                .catch(error => {
+                    document.getElementById('sw-status').textContent = '❌ Failed';
+                    document.getElementById('sw-status').style.color = '#EF4444';
+                });
+        } else {
+            document.getElementById('sw-status').textContent = '❌ Not Supported';
+            document.getElementById('sw-status').style.color = '#EF4444';
+        }
+        
+        // Test Install Prompt
+        let deferredPrompt;
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            document.getElementById('install-btn').style.display = 'block';
+            document.getElementById('install-status').textContent = '✅ Available';
+            document.getElementById('install-status').style.color = '#10B981';
+        });
+        
+        document.getElementById('install-btn').addEventListener('click', async () => {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                const { outcome } = await deferredPrompt.userChoice;
+                console.log(`User response: ${outcome}`);
+                deferredPrompt = null;
+            }
+        });
+        
+        // Test Offline Support
+        function testOffline() {
+            if ('serviceWorker' in navigator && 'caches' in window) {
+                document.getElementById('offline-status').textContent = '✅ Supported';
+                document.getElementById('offline-status').style.color = '#10B981';
+            } else {
+                document.getElementById('offline-status').textContent = '❌ Not Supported';
+                document.getElementById('offline-status').style.color = '#EF4444';
+            }
+        }
+        
+        // Initialize offline test
+        testOffline();
+    </script>
+</body>
+</html>

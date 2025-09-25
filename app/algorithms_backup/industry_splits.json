@@ -1,0 +1,29 @@
+{
+  "industries": {
+    "تجارة إلكترونية": {
+      "defaultPlatformSplit": {
+        "Meta": 0.40,
+        "Google Search": 0.20,
+        "Google Display": 0.10,
+        "TikTok": 0.20,
+        "Snapchat": 0.10
+      }
+    },
+    "رعاية صحية": {
+      "defaultPlatformSplit": {
+        "Google Search": 0.45,
+        "Meta": 0.30,
+        "YouTube": 0.15,
+        "Snapchat": 0.10
+      }
+    },
+    "تعليم": {
+      "defaultPlatformSplit": {
+        "Google Search": 0.40,
+        "Meta": 0.35,
+        "YouTube": 0.10,
+        "LinkedIn": 0.15
+      }
+    }
+  }
+}

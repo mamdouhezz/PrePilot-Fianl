@@ -1,0 +1,96 @@
+{
+  "schemaVersion": "1.0.0",
+  "ruleSetName": "PrePilot Component Modularity & Single Responsibility Mandate",
+  "description": "A set of architectural rules to enforce the creation of small, modular, and single-responsibility components, preventing monolithic 'God Components'.",
+  "enforcedBy": "AI Staff Engineer during code generation and review.",
+  "philosophy": "A component should do one thing and do it well. If a component does too much, it must be decomposed.",
+  
+  "rules": [
+    {
+      "ruleId": "SRP-01",
+      "name": "Single Responsibility Principle (SRP) for Components",
+      "description": "Every component must have a single, well-defined responsibility. It should handle either UI presentation, state logic, or data fetching, but ideally not all at once.",
+      "guidelines": [
+        "If a component fetches data AND renders a complex list, it should be split into a container component (fetching) and a presentational component (rendering).",
+        "A component's name should clearly describe its single purpose (e.g., `UserProfileCard` is good; `UserStuff` is bad)."
+      ]
+    },
+    {
+      "ruleId": "MOD-02",
+      "name": "Component Decomposition Mandate",
+      "description": "Large components must be broken down into smaller, logical sub-components. This is not optional.",
+      "metrics": {
+        "maxLinesOfCode": {
+          "softLimit": 150,
+          "hardLimit": 250,
+          "action": "If a component exceeds the soft limit, a refactoring review is triggered. Exceeding the hard limit is a build failure."
+        },
+        "maxResponsibilities": {
+          "limit": 1,
+          "examples": ["Rendering a form section", "Managing a piece of state", "Displaying a chart"]
+        },
+        "maxUseEffectHooks": {
+          "limit": 3,
+          "action": "More than 3 `useEffect` hooks in a single component is a strong indicator that it has too many responsibilities and must be refactored."
+        }
+      },
+      "guidelines": [
+        "If a JSX block within a component has its own internal logic or is repeated, extract it into a new sub-component.",
+        "Create a dedicated folder for the parent component and its new sub-components to keep them organized. Example: `src/components/MediaPlan/` containing `MediaPlan.tsx`, `MediaPlanHeader.tsx`, and `MediaPlanRow.tsx`."
+      ]
+    },
+    {
+      "ruleId": "STR-03",
+      "name": "Clear Prop-Driven Communication",
+      "description": "Components should primarily communicate via props (downwards) and callbacks (upwards). Avoid complex context or direct state manipulation where possible.",
+      "guidelines": [
+        "Favor component composition over complex conditional rendering within a single component.",
+        "Pass data and state down as props. Pass event handlers (callbacks like `onSubmit`, `onClick`) up to parent components to manage logic."
+      ]
+    },
+    {
+      "ruleId": "HOOK-04",
+      "name": "Logic Abstraction with Custom Hooks",
+      "description": "Complex, non-visual logic (state management, API calls, event listeners) must be extracted from components into custom hooks.",
+      "guidelines": [
+        "If a component contains complex `useState` and `useEffect` logic that can be reused, extract it into a `use...` hook (e.g., `useTheme`, `useExportHistory`).",
+        "The component should then call the custom hook and receive clean state and handler functions, keeping the component's body focused on rendering JSX."
+      ]
+    }
+  ],
+  "implementationProtocol": {
+    "title": "Protocol for Applying Modularity Rules",
+    "steps": [
+      {
+        "step": 1,
+        "action": "Analyze the Blueprint",
+        "description": "Before implementing any component from the `_PREPILOT_BLUEPRINTS` directory, analyze its size and responsibilities."
+      },
+      {
+        "step": 2,
+        "action": "Identify Decomposition Candidates",
+        "description": "Based on the rules (SRP-01, MOD-02), identify logical parts of the blueprint component that can be extracted into sub-components (e.g., a form section, a list item, a header)."
+      },
+      {
+        "step": 3,
+        "action": "Create the Component Structure",
+        "description": "Create a new directory for the main component (e.g., `src/components/Playground/`). Inside it, create the main component file (`index.tsx` or `PlaygroundPage.tsx`) and separate files for each sub-component you identified."
+      },
+      {
+        "step": 4,
+        "action": "Implement Sub-Components First",
+        "description": "Build the smallest, most reusable sub-components first. They should be 'dumb' components that receive all their data and handlers via props."
+      },
+      {
+        "step": 5,
+        "action": "Compose the Parent Component",
+        "description": "Implement the main (parent) component by importing and composing the sub-components. The parent component is now responsible for managing state and passing the correct props down."
+      },
+      {
+        "step": 6,
+        "action": "Final Review",
+        "description": "Review the newly created components against the metrics in rule MOD-02 to ensure they are lean, focused, and adhere to the Single Responsibility Principle."
+      }
+    ]
+  }
+}

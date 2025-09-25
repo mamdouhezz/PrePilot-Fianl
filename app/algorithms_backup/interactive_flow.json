@@ -1,0 +1,116 @@
+{
+  "engine": "prepilot_interactive_flow",
+  "version": "1.0",
+  "description": "Defines the interactive dashboard logic: how user inputs trigger algorithms and update visuals in real-time.",
+  "controls": [
+    {
+      "control": "budget_slider",
+      "field": "budget",
+      "min": 1000,
+      "max": 500000,
+      "step": 1000,
+      "triggers": ["validation", "budget_allocation", "kpi_estimation", "recommendations"]
+    },
+    {
+      "control": "goals_multi_select",
+      "field": "goals",
+      "options": ["Awareness", "Traffic", "Leads", "Sales", "Engagement"],
+      "triggers": ["validation", "budget_allocation", "kpi_estimation", "recommendations"]
+    },
+    {
+      "control": "platforms_multi_select",
+      "field": "selectedPlatforms",
+      "options": ["Meta", "Google Search", "YouTube", "TikTok", "Snapchat", "LinkedIn", "Twitter"],
+      "triggers": ["validation", "budget_allocation", "kpi_estimation", "recommendations"]
+    },
+    {
+      "control": "season_dropdown",
+      "field": "season",
+      "options": ["Default", "Ramadan", "Hajj", "BackToSchool", "WhiteFriday", "Summer"],
+      "triggers": ["validation", "seasonality_adjustment", "kpi_estimation", "recommendations"]
+    }
+  ],
+  "flow": [
+    {
+      "step": 1,
+      "name": "Validation",
+      "file": "validation.json",
+      "input": ["industry", "budget", "goals", "selectedPlatforms", "season"],
+      "output": "isValid + errors"
+    },
+    {
+      "step": 2,
+      "name": "Budget Allocation",
+      "file": "budget_allocation.json",
+      "input": ["budget", "goals", "selectedPlatforms"],
+      "output": "allocation per platform"
+    },
+    {
+      "step": 3,
+      "name": "Seasonality Adjustment",
+      "file": "seasonality_adjustment.json",
+      "input": ["industry", "season", "budget"],
+      "output": "adjusted CPM, CTR, CPC, CVR"
+    },
+    {
+      "step": 4,
+      "name": "KPI Estimation",
+      "file": "kpi_estimation.json",
+      "input": ["industry", "platform", "budget", "goals", "season"],
+      "output": "impressions, clicks, conversions, ROAS"
+    },
+    {
+      "step": 5,
+      "name": "Recommendations",
+      "file": "recommendations.json",
+      "input": ["industry", "budget", "goals", "selectedPlatforms", "season"],
+      "output": "recommendations list"
+    }
+  ],
+  "visuals": [
+    {
+      "component": "dynamic_pie_chart",
+      "updatesOn": ["budget", "goals", "platforms"],
+      "dataSource": "budget_allocation.json"
+    },
+    {
+      "component": "live_bar_chart",
+      "updatesOn": ["budget", "goals", "season"],
+      "dataSource": "kpi_estimation.json"
+    },
+    {
+      "component": "line_chart",
+      "updatesOn": ["season"],
+      "dataSource": "seasonality_adjustment.json"
+    },
+    {
+      "component": "recommendations_checklist",
+      "updatesOn": ["budget", "goals", "season", "platforms"],
+      "dataSource": "recommendations.json"
+    }
+  ],
+  "example": {
+    "input": {
+      "industry": "Retail",
+      "budget": 20000,
+      "goals": ["Leads"],
+      "selectedPlatforms": ["Meta", "Google Search"],
+      "season": "Ramadan"
+    },
+    "output": {
+      "allocation": {
+        "Meta": 12000,
+        "Google Search": 8000
+      },
+      "KPIs": {
+        "Meta": { "impressions": 250000, "clicks": 4000, "conversions": 160, "ROAS": 3.5 },
+        "Google Search": { "impressions": 180000, "clicks": 3000, "conversions": 120, "ROAS": 4.0 }
+      },
+      "recommendations": [
+        "🎯 رمضان = فرصة ذهبية، زد استثمارك في Google Search.",
+        "⚡ TikTok مناسب جدًا للوعي في هذا الموسم."
+      ]
+    }
+  }
+}
+ 

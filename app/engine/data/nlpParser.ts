@@ -1,0 +1,93 @@
+export const nlpParser = {
+  "algorithm": "nlp_parser",
+  "version": "1.0",
+  "description": "Parses natural language queries (English + Arabic + Saudi dialect) into structured campaign inputs for PrePilot app.",
+  "supported_languages": ["en", "ar", "ar-Sa"],
+  "mapping": {
+    "industry": {
+      "keywords": ["industry", "مجال", "قطاع", "business type"],
+      "examples": [
+        "أنا عيادة أسنان",
+        "We’re an E-commerce fashion store",
+        "أنا وكالة إعلانات"
+      ]
+    },
+    "sub_industry": {
+      "keywords": ["sub-industry", "تفصيل", "تخصص"],
+      "examples": [
+        "صيدلية", 
+        "مستشفى",
+        "عيادة"
+      ]
+    },
+    "budget": {
+      "keywords": ["budget", "ميزانية", "معي مبلغ", "نصرف كم"],
+      "examples": [
+        "معي 100 ألف ريال",
+        "ميزانية الحملة 50k",
+        "we want to spend 20,000 ريال"
+      ]
+    },
+    "objectives": {
+      "keywords": ["objective", "هدف", "وش تبغى تحقق", "goal"],
+      "examples": [
+        "أبغى Leads",
+        "نركز على Brand awareness",
+        "عايز traffic & conversions"
+      ]
+    },
+    "platforms": {
+      "keywords": ["platform", "منصة", "social media", "channel"],
+      "examples": [
+        "أبغى Snapchat و TikTok",
+        "we’ll run on Meta and Google",
+        "محتاج YouTube بس"
+      ]
+    },
+    "seasonality": {
+      "keywords": ["season", "موسم", "occasion", "event"],
+      "examples": [
+        "رمضان",
+        "Black Friday",
+        "العودة للمدارس",
+        "حملة موسم الحج"
+      ]
+    },
+    "roi_roas": {
+      "keywords": ["roi", "roas", "عائد", "target ratio"],
+      "examples": [
+        "أحتاج ROAS 3x",
+        "نبي ROI 200%",
+        "ابغى 2.5x return"
+      ]
+    }
+  },
+  "workflow": {
+    "step1": "Detect language of the input.",
+    "step2": "Extract entities based on mapping.",
+    "step3": "Normalize values (e.g., convert 'مئة ألف' → 100000).",
+    "step4": "Validate missing fields, ask clarifying question if needed.",
+    "step5": "Return structured JSON."
+  },
+  "outputs": {
+    "industry": "string",
+    "sub_industry": "string",
+    "budget": "number (ريال)",
+    "objectives": ["list of objectives"],
+    "platforms": ["list of platforms"],
+    "seasonality": "string",
+    "roi_roas": "float"
+  },
+  "example": {
+    "input": "عندي ميزانية 100 ألف ريال، أبغى أشغلها على تيك توك وسناب عشان leads في رمضان وأتمنى ROAS يكون 3x",
+    "output": {
+      "industry": null,
+      "sub_industry": null,
+      "budget": 100000,
+      "objectives": ["Leads"],
+      "platforms": ["TikTok", "Snapchat"],
+      "seasonality": "Ramadan",
+      "roi_roas": 3.0
+    }
+  }
+} as const;

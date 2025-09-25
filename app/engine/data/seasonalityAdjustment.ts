@@ -1,0 +1,52 @@
+export const seasonalityAdjustment = {
+  "algorithm": "seasonality_adjustment",
+  "version": "1.0",
+  "description": "Applies seasonal multipliers to expected campaign KPIs based on Saudi market events and trends.",
+  "inputs": {
+    "industry": "string",
+    "season": "string (e.g. Ramadan, Summer, BackToSchool, Hajj, WhiteFriday)",
+    "budget": "number"
+  },
+  "steps": [
+    {
+      "step": 1,
+      "name": "Load season multipliers",
+      "description": "Fetch multiplier set for given season and industry"
+    },
+    {
+      "step": 2,
+      "name": "Apply multipliers",
+      "description": "Adjust CPM, CTR, CPC, CVR by the multiplier"
+    },
+    {
+      "step": 3,
+      "name": "Recalculate expected results",
+      "description": "Update impressions, clicks, conversions accordingly"
+    }
+  ],
+  "outputs": {
+    "adjustedKPIs": {
+      "CPM": "number",
+      "CTR": "number",
+      "CPC": "number",
+      "CVR": "number"
+    },
+    "insight": "short note describing seasonal effect"
+  },
+  "example": {
+    "input": {
+      "industry": "Retail",
+      "season": "Ramadan",
+      "budget": 50000
+    },
+    "output": {
+      "adjustedKPIs": {
+        "CPM": 5.8,
+        "CTR": 1.4,
+        "CPC": 0.40,
+        "CVR": 3.2
+      },
+      "insight": "خلال رمضان معدل المشاهدات أعلى ولكن تكلفة النقرة أقل"
+    }
+  }
+} as const;

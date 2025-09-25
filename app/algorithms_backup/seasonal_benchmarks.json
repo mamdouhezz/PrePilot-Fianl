@@ -1,0 +1,41 @@
+{
+  "seasons": {
+    "Ramadan": {
+      "CPM_multiplier": 1.3,
+      "CTR_multiplier": 1.1,
+      "CPC_multiplier": 0.9,
+      "CVR_multiplier": 1.2,
+      "notes": "رمضان = تفاعل عالي جدًا، أسعار الـ CPM ترتفع لكن التحويلات تتحسن"
+    },
+    "Hajj": {
+      "CPM_multiplier": 1.1,
+      "CTR_multiplier": 1.0,
+      "CPC_multiplier": 1.0,
+      "CVR_multiplier": 1.1,
+      "notes": "الإعلانات تميل أن تكون محدودة باستثناء خدمات الحج والعمرة"
+    },
+    "BackToSchool": {
+      "CPM_multiplier": 1.2,
+      "CTR_multiplier": 1.1,
+      "CPC_multiplier": 1.0,
+      "CVR_multiplier": 1.3,
+      "notes": "طلب عالي على التعليم والـ e-commerce (لابتوبات، لوازم مكتبية)"
+    },
+    "WhiteFriday": {
+      "CPM_multiplier": 1.4,
+      "CTR_multiplier": 1.3,
+      "CPC_multiplier": 0.8,
+      "CVR_multiplier": 1.5,
+      "notes": "أقوى موسم مبيعات في السنة، تنافس شديد على الإعلانات"
+    },
+    "Summer": {
+      "CPM_multiplier": 0.9,
+      "CTR_multiplier": 0.95,
+      "CPC_multiplier": 1.1,
+      "CVR_multiplier": 0.85,
+      "notes": "أداء أضعف نسبيًا، خصوصًا في الـ B2B والـ education"
+    }
+  },
+  "source": "خبرات تشغيلية + أنماط أداء متكررة في السوق السعودي"
+}
+ 

@@ -1,0 +1,84 @@
+{
+  "template": "client_friendly_media_plan",
+  "version": "1.0",
+  "description": "Simplified and visually rich report template for business owners and clients.",
+  "layout": {
+    "cover": {
+      "title": "🚀 خطتك الإعلانية المبدئية",
+      "subtitle": "جاهزة خلال دقيقة… مبنية على خبرة +12 مليون ريال إنفاق فعلي",
+      "meta": {
+        "industry": "string",
+        "budget": "number",
+        "season": "string"
+      }
+    },
+    "sections": [
+      {
+        "name": "ملخص سريع",
+        "style": "highlight_box",
+        "content": [
+          "📌 الخطة هذه تعطيك أول إشارة قبل تنفيذ أي حملة تجريبية",
+          "💡 الهدف: تساعدك تتخيل النتائج المتوقعة وتناقشها مع فريقك"
+        ]
+      },
+      {
+        "name": "توزيع الميزانية",
+        "style": "visual_only",
+        "visualization": "donut_chart",
+        "note": "كيف رح تنقسم ميزانيتك بين المنصات الرئيسية"
+      },
+      {
+        "name": "وش تتوقع من النتائج؟",
+        "style": "cards_grid",
+        "cards": [
+          { "title": "👀 مشاهدات (Impressions)", "value": "number", "style": "big_number" },
+          { "title": "🖱️ نقرات (Clicks)", "value": "number", "style": "big_number" },
+          { "title": "🤝 عملاء محتملين (Leads/Conversions)", "value": "number", "style": "big_number" },
+          { "title": "💰 العائد (ROAS)", "value": "ratio", "style": "big_number" }
+        ]
+      },
+      {
+        "name": "تأثير الموسم",
+        "style": "visual_note",
+        "content": [
+          "🎯 موسم {season} يعطي دفعة قوية لنتائجك",
+          "⬆️ معدل التفاعل يزيد بنسبة X%",
+          "⬇️ تكلفة النقرة تنخفض بنسبة Y%"
+        ],
+        "visualization": "season_chart"
+      },
+      {
+        "name": "توصيات سريعة",
+        "style": "checklist",
+        "content": [
+          "✅ TikTok مناسب لو هدفك وعي وانتشار",
+          "✅ LinkedIn ممتاز للـ B2B",
+          "⚠️ مع ميزانيات صغيرة ركز على قناتين فقط"
+        ]
+      },
+      {
+        "name": "الخلاصة",
+        "style": "highlight_box",
+        "content": [
+          "📥 التقرير هذا بداية ذكية، بس لازم تسوي حملة تجريبية (Pilot) عشان تثبت الأرقام.",
+          "👌 الخطة تساعدك تقفل ميتنج مع العميل بثقة."
+        ]
+      }
+    ]
+  },
+  "exportOptions": {
+    "formats": ["PDF", "HTML", "Interactive Web"],
+    "branding": {
+      "logoPosition": "top-center",
+      "colors": {
+        "primary": "#10B981",
+        "secondary": "#2563EB",
+        "neutral": "#F3F4F6"
+      },
+      "fonts": {
+        "headers": "Cairo",
+        "body": "Rubik"
+      }
+    }
+  }
+}

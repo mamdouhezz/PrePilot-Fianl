@@ -1,0 +1,905 @@
+
+
+
+
+
+
+import { Type } from "@google/genai";
+import { ai } from '../services/aiClient';
+import { 
+  CampaignData, 
+  CampaignReport, 
+  KpiSet, 
+  ValidationFlag, 
+  AdvancedInsightsSet, 
+  AdvancedInsight,
+  BrandContext,
+  UIWarning
+} from '../types';
+import { 
+    INDUSTRIES, 
+    GOALS, 
+    PLATFORMS, 
+    SEASONS, 
+    AUDIENCE_AGES, 
+    AUDIENCE_GENDERS, 
+    AUDIENCE_LOCATIONS,
+    CAMPAIGN_DURATIONS,
+    FUNNEL_STAGES,
+    CONVERSION_DEFINITIONS,
+    CREATIVE_TYPES,
+    COMPETITOR_CONTEXTS,
+    industryPlatformCompatibility,
+    industryTargetingSuggestions,
+    industryAgeDefaults,
+    CAMPAIGN_PRESETS
+} from '../constants';
+
+// MOCK DATA AND HELPERS (to replace with real modules)
+// This data is for placeholder purposes as the original files were not provided.
+
+const industrySplits = {
+  industries: {
+    'تجارة إلكترونية': { defaultPlatformSplit: { meta: 3, google_ads: 2, tiktok: 2, snapchat: 1 } },
+    'عقارات': { defaultPlatformSplit: { meta: 2, google_ads: 3, linkedin: 1 } },
+    'default': { defaultPlatformSplit: { meta: 1, google_ads: 1 } },
+  }
+};
+
+const platformBenchmarks = {
+  platforms: {
+    meta: { avg_CPM_SAR: 25, avg_CTR_percent: 1.2, avg_CVR_percent: 2.5, avg_ROAS: 3.5, avg_CPC_SAR: 2.08 },
+    google_ads: { avg_CPM_SAR: 30, avg_CTR_percent: 2.0, avg_CVR_percent: 3.0, avg_ROAS: 4.5, avg_CPC_SAR: 1.5 },
+    youtube: { avg_CPM_SAR: 20, avg_CTR_percent: 0.8, avg_CVR_percent: 1.0, avg_ROAS: 2.5, avg_CPC_SAR: 2.5 },
+    tiktok: { avg_CPM_SAR: 15, avg_CTR_percent: 1.5, avg_CVR_percent: 1.8, avg_ROAS: 3.0, avg_CPC_SAR: 1.0 },
+    snapchat: { avg_CPM_SAR: 18, avg_CTR_percent: 1.3, avg_CVR_percent: 1.5, avg_ROAS: 2.8, avg_CPC_SAR: 1.38 },
+    x: { avg_CPM_SAR: 22, avg_CTR_percent: 1.0, avg_CVR_percent: 1.2, avg_ROAS: 2.0, avg_CPC_SAR: 2.2 },
+    linkedin: { avg_CPM_SAR: 50, avg_CTR_percent: 0.8, avg_CVR_percent: 2.0, avg_ROAS: 3.0, avg_CPC_SAR: 6.25 },
+    programmatic: { avg_CPM_SAR: 12, avg_CTR_percent: 0.5, avg_CVR_percent: 0.8, avg_ROAS: 1.8, avg_CPC_SAR: 2.4 },
+  }
+};
+
+const seasonalBenchmarks = {
+  seasons: {
+    ramadan: { CPM_multiplier: 1.3, CTR_multiplier: 1.1, CVR_multiplier: 1.2 },
+    white_friday: { CPM_multiplier: 1.5, CTR_multiplier: 1.2, CVR_multiplier: 1.8 },
+    default: { CPM_multiplier: 1.0, CTR_multiplier: 1.0, CVR_multiplier: 1.0 },
+  }
+};
+
+const industryData = {
+  'تجارة إلكترونية': { cpm_modifier: 1.1, ctr_modifier: 1.2, cvr_modifier: 1.3, avg_AOV_SAR: 250, avg_CAC_SAR: 50 },
+  'عقارات': { cpm_modifier: 1.4, ctr_modifier: 0.8, cvr_modifier: 0.9, avg_AOV_SAR: 5000, avg_CAC_SAR: 500 },
+  'default': { cpm_modifier: 1.0, ctr_modifier: 1.0, cvr_modifier: 1.0, avg_AOV_SAR: 150, avg_CAC_SAR: 75 },
+};
+
+const competitorSplits = [
+  { industry: 'تجارة إلكترونية', competitor_split: { meta: 0.4, google_ads: 0.3, tiktok: 0.3 } }
+];
+
+const seasonalInsights = {
+  ramadan: "During Ramadan, expect higher engagement but also increased competition. Focus on content that resonates with the spirit of the month.",
+  white_friday: "White Friday is a high-stakes period. Budgets should be increased to capture massive user intent, but CAC will also rise.",
+  default: "No specific seasonal lift applied. Focus on evergreen content and consistent performance."
+};
+
+const creativeModifiers = {
+  video: { cpm: 1.1, ctr: 1.3, cvr: 1.2 },
+  static: { cpm: 1.0, ctr: 1.0, cvr: 1.0 },
+  carousel: { cpm: 1.05, ctr: 1.2, cvr: 1.1 },
+};
+
+const competitionModifiers = {
+  high: { cpm: 1.2, ctr: 0.9, cvr: 0.95 },
+  low: { cpm: 0.9, ctr: 1.1, cvr: 1.05 },
+};
+
+const targetingModifiers = {
+    'التسوق والأزياء': { cpm: 1.1, ctr: 1.2, cvr: 1.3 },
+    'التقنية': { cpm: 1.15, ctr: 1.1, cvr: 1.1 },
+    'المتسوقون المتفاعلون': { cpm: 1.2, ctr: 1.1, cvr: 1.4 },
+    'default': { cpm: 1.0, ctr: 1.0, cvr: 1.0 },
+};
+
+const validateAndClampKpis = (data: CampaignData, rawKpis: any) => ({
+  validatedKpis: rawKpis,
+  anomalies: [],
+  corrections: []
+});
+
+const buildOrchestratorPrompt = (payload: any) => `Generate a detailed marketing report based on the following data: ${JSON.stringify(payload, null, 2)}`;
+
+const reconcileFinancials = (data: CampaignData, totals: KpiSet) => ({
+  totals,
+  corrections: [],
+  anomalies: []
+});
+
+const MAX_SEASONS = 2;
+const resolveSeasons = (seasons: string[]) => ({
+  active: seasons.slice(0, MAX_SEASONS),
+  dropped: seasons.slice(MAX_SEASONS),
+  conflicts: []
+});
+
+const checkPlatformCompatibility = (industry: string, platforms: string[]) => ({
+  incompatibilities: [],
+  suggestions: []
+});
+
+const industryMinBudgetSAR = {
+  'عقارات': 50000,
+  default: 5000
+};
+
+const buildUIWarningPrompt = (warnings: any) => `Generate user-friendly messages for these warnings: ${JSON.stringify(warnings)}`;
+// END MOCK DATA
+
+export type { CampaignReport, ValidationFlag as ValidationResult, KpiSet };
+
+function combineMultipliers(
+  multipliers: number[],
+  { softCap, hardCap, method = 'log-sum' }: { softCap: number; hardCap: number; method?: 'log-sum' | 'product' }
+): number {
+  const safe = multipliers.map(m => Math.max(m, 0.01));
+  if (method === 'log-sum') {
+    const logSum = safe.reduce((acc, m) => acc + Math.log(m), 0);
+    const combined = Math.exp(logSum);
+    const soft = combined > softCap ? softCap + 0.5 * (combined - softCap) : combined;
+    return Math.min(soft, hardCap);
+  }
+  const product = safe.reduce((a, b) => a * b, 1);
+  const soft = product > softCap ? softCap + 0.5 * (product - softCap) : product;
+  return Math.min(soft, hardCap);
+}
+
+const _getDemographicModifier = (
+  targetAudience: CampaignData['targetAudience']
+): { cpm: number; cvr: number; ctr: number } => {
+  let cpmModifier = 1.0;
+  let cvrModifier = 1.0;
+  let ctrModifier = 1.0;
+
+  const isSpecificLocation = 
+    targetAudience.locations.length === 1 && 
+    !targetAudience.locations.includes('كل المدن الرئيسية');
+  const isBroadLocation = targetAudience.locations.length > 2;
+  
+  if (isSpecificLocation) {
+    cpmModifier *= 1.12;
+    cvrModifier *= 1.08;
+    ctrModifier *= 1.05;
+  } else if (isBroadLocation) {
+    cpmModifier *= 0.95;
+    cvrModifier *= 0.97;
+  }
+
+  if (targetAudience.gender !== 'الكل') {
+    cpmModifier *= 1.05;
+    cvrModifier *= 1.03;
+  }
+
+  if (targetAudience.age.length > 1) { // استهداف واسع
+    cpmModifier *= 1.05;
+  } else if (targetAudience.age.length === 1 && (targetAudience.age[0] === '18-24' || targetAudience.age[0] === '45+')) { // فئات متخصصة/أغلى
+    cpmModifier *= 1.03;
+  }
+  
+  return { cpm: cpmModifier, cvr: cvrModifier, ctr: ctrModifier };
+};
+
+const _getTargetingModifier = (
+  targetAudience: CampaignData['targetAudience']
+): { cpm: number; cvr: number; ctr: number } => {
+    const selectedItems = [...targetAudience.interests, ...targetAudience.behaviors];
+    if (selectedItems.length === 0) {
+        return { cpm: 1.0, cvr: 1.0, ctr: 1.0 };
+    }
+
+    const cpmMultipliers = selectedItems.map(id => (targetingModifiers as any)[id as any]?.cpm ?? 1.0);
+    const ctrMultipliers = selectedItems.map(id => (targetingModifiers as any)[id as any]?.ctr ?? 1.0);
+    const cvrMultipliers = selectedItems.map(id => (targetingModifiers as any)[id as any]?.cvr ?? 1.0);
+    
+    const cpm = combineMultipliers(cpmMultipliers, { softCap: 1.4, hardCap: 1.8 });
+    const ctr = combineMultipliers(ctrMultipliers, { softCap: 1.3, hardCap: 1.6 });
+    const cvr = combineMultipliers(cvrMultipliers, { softCap: 1.35, hardCap: 1.7 });
+    
+    return { cpm, cvr, ctr };
+};
+
+const _calculateKpis = (
+  budget: number, 
+  platform: keyof typeof platformBenchmarks["platforms"], 
+  data: CampaignData,
+  activeSeasons: string[]
+): KpiSet => {
+  const base = platformBenchmarks.platforms[platform];
+  const industryModifier = (industryData as any)[data.industry as any] || industryData.default;
+  
+  const seasonalCpmMultiplier = combineMultipliers(activeSeasons.map(s => (seasonalBenchmarks.seasons as any)[s as any]?.CPM_multiplier ?? 1.0), { softCap: 1.6, hardCap: 2.0 });
+  const seasonalCtrMultiplier = combineMultipliers(activeSeasons.map(s => (seasonalBenchmarks.seasons as any)[s as any]?.CTR_multiplier ?? 1.0), { softCap: 1.5, hardCap: 1.8 });
+  const seasonalCvrMultiplier = combineMultipliers(activeSeasons.map(s => (seasonalBenchmarks.seasons as any)[s as any]?.CVR_multiplier ?? 1.0), { softCap: 1.6, hardCap: 2.0 });
+
+  const creativeModifier = creativeModifiers[data.creativeType];
+  const competitorModifier = competitionModifiers[data.competitorContext];
+  const demographicModifier = _getDemographicModifier(data.targetAudience);
+  const targetingModifier = _getTargetingModifier(data.targetAudience);
+
+  const cpmDemographic = combineMultipliers([demographicModifier.cpm], { softCap: 1.3, hardCap: 1.5 });
+  const ctrDemographic = combineMultipliers([demographicModifier.ctr], { softCap: 1.2, hardCap: 1.5 });
+  const cvrDemographic = combineMultipliers([demographicModifier.cvr], { softCap: 1.2, hardCap: 1.4 });
+
+  const cpmCompetition = combineMultipliers([competitorModifier.cpm], { softCap: 1.3, hardCap: 1.5 });
+  const ctrCompetition = combineMultipliers([competitorModifier.ctr], { softCap: 1.2, hardCap: 1.4 });
+  
+  const cpmCreative = combineMultipliers([creativeModifier.cpm], { softCap: 1.2, hardCap: 1.3 });
+  const ctrCreative = combineMultipliers([creativeModifier.ctr], { softCap: 1.3, hardCap: 1.5 });
+
+  const cpmTargeting = combineMultipliers([targetingModifier.cpm], { softCap: 1.25, hardCap: 1.4 });
+  const ctrTargeting = combineMultipliers([targetingModifier.ctr], { softCap: 1.2, hardCap: 1.35 });
+  const cvrTargeting = combineMultipliers([targetingModifier.cvr], { softCap: 1.2, hardCap: 1.35 });
+  
+  let funnelCtrMultiplier = 1.0;
+  let funnelCvrMultiplier = 1.0;
+
+  if (data.funnelStage === 'conversion') {
+      funnelCvrMultiplier = 1.2;
+      funnelCtrMultiplier = 0.9;
+  } else if (data.funnelStage === 'consideration') {
+      funnelCvrMultiplier = 1.0;
+      funnelCtrMultiplier = 1.2;
+  } else { // Awareness
+      funnelCvrMultiplier = 0.8;
+      funnelCtrMultiplier = 1.1;
+  }
+  
+  const cpm = base.avg_CPM_SAR * industryModifier.cpm_modifier * seasonalCpmMultiplier * cpmCreative * cpmCompetition * cpmDemographic * cpmTargeting;
+  const ctr = base.avg_CTR_percent * industryModifier.ctr_modifier * seasonalCtrMultiplier * ctrCreative * ctrCompetition * funnelCtrMultiplier * ctrDemographic * ctrTargeting;
+  const cvr = base.avg_CVR_percent * industryModifier.cvr_modifier * seasonalCvrMultiplier * funnelCvrMultiplier * cvrDemographic * cvrTargeting;
+  
+  const impressions = budget > 0 && cpm > 0 ? (budget / cpm) * 1000 : 0;
+  const clicks = impressions * (ctr / 100);
+  const conversions = clicks * (cvr / 100);
+
+  const cpc = clicks > 0 ? budget / clicks : 0;
+  const cac = conversions > 0 ? budget / conversions : 0;
+  const cpa = conversions > 0 ? budget / conversions : 0;
+
+  let revenue = 0;
+  let roas = 0;
+  let arpu = 0;
+  let breakEvenRoas = 0;
+
+  if (data.funnelStage === 'conversion') {
+      const aov = data.conversionDefinition === 'purchase' && data.aov > 0 ? data.aov : industryModifier.avg_AOV_SAR;
+      revenue = conversions * aov;
+      roas = budget > 0 ? revenue / budget : 0;
+      arpu = conversions > 0 ? revenue / conversions : 0;
+      breakEvenRoas = data.profitMargin > 0 ? 1 / (data.profitMargin / 100) : Infinity;
+  }
+
+  return {
+    budget,
+    impressions: Math.round(impressions),
+    clicks: Math.round(clicks),
+    ctr,
+    cpm,
+    cpc,
+    conversions: Math.round(conversions),
+    cvr,
+    revenue,
+    roas,
+    arpu,
+    cac,
+    cpa,
+    breakEvenRoas,
+  };
+};
+
+const calculateKpisForBudgetAllocation = (budgetAllocation: { [platform: string]: number }, data: CampaignData, activeSeasons: string[]) => {
+    const perPlatform: { [platform: string]: KpiSet } = {};
+    Object.entries(budgetAllocation).forEach(([platform, budget]) => {
+        perPlatform[platform] = _calculateKpis(budget, platform as any, data, activeSeasons);
+    });
+
+    const totals: KpiSet = Object.values(perPlatform).reduce(
+        (acc, kpis) => {
+            acc.budget += kpis.budget;
+            acc.impressions += kpis.impressions;
+            acc.clicks += kpis.clicks;
+            acc.conversions += kpis.conversions;
+            acc.revenue += kpis.revenue;
+            return acc;
+        },
+        { budget: 0, impressions: 0, clicks: 0, conversions: 0, ctr: 0, cpm: 0, cpc: 0, cvr: 0, roas: 0, arpu: 0, revenue: 0, cac: 0, cpa: 0, breakEvenRoas: 0 }
+    );
+
+    if (totals.impressions > 0) totals.ctr = (totals.clicks / totals.impressions) * 100;
+    if (totals.budget > 0 && totals.impressions > 0) totals.cpm = (totals.budget / totals.impressions) * 1000;
+    if (totals.clicks > 0) {
+        totals.cpc = totals.budget / totals.clicks;
+        totals.cvr = (totals.conversions / totals.clicks) * 100;
+    }
+    if (totals.budget > 0 && totals.revenue > 0) totals.roas = totals.revenue / totals.budget;
+    if (totals.conversions > 0) {
+        if (totals.revenue > 0) totals.arpu = totals.revenue / totals.conversions;
+        totals.cac = totals.budget / totals.conversions;
+        totals.cpa = totals.budget / totals.conversions;
+    }
+    totals.breakEvenRoas = 0;
+
+    return { perPlatform, totals };
+};
+
+const generateAdvancedInsights = (totals: KpiSet, data: CampaignData): AdvancedInsightsSet => {
+    const industryAvgCac = (industryData as any)[data.industry as any]?.avg_CAC_SAR || industryData.default.avg_CAC_SAR;
+    const breakEvenRoas = data.profitMargin > 0 ? 1 / (data.profitMargin / 100) : Infinity;
+    const activeSeason = data.seasons.find(s => seasonalInsights[s as keyof typeof seasonalInsights]) || 'default';
+    
+    return {
+        arpu: {
+            title: "متوسط العائد لكل تحويل (ARPU)",
+            value: totals.arpu,
+            status: 'neutral',
+            insight: `متوقع أن يكون متوسط العائد لكل تحويل حوالي ${totals.arpu.toFixed(2)} ريال.`
+        },
+        cac: {
+            title: "تكلفة اكتساب العميل (CAC)",
+            value: totals.cac,
+            benchmark: industryAvgCac,
+            status: totals.cac < industryAvgCac ? 'above' : 'below',
+            insight: totals.cac < industryAvgCac
+                ? `تكلفة اكتساب العميل المتوقعة (${totals.cac.toFixed(2)} ريال) أقل من معيار الصناعة (${industryAvgCac} ريال).`
+                : `تكلفة اكتساب العميل المتوقعة (${totals.cac.toFixed(2)} ريال) أعلى من معيار الصناعة (${industryAvgCac} ريال).`
+        },
+        breakEvenRoas: {
+            title: "نقطة التعادل للعائد (Break-Even ROAS)",
+            value: breakEvenRoas,
+            benchmark: totals.roas,
+            status: totals.roas > breakEvenRoas ? 'above' : 'below',
+            insight: totals.roas > breakEvenRoas
+                ? `الحملة متوقعة أن تكون مربحة. العائد المتوقع (${totals.roas.toFixed(2)}x) يتجاوز نقطة التعادل (${breakEvenRoas.toFixed(2)}x).`
+                : `الحملة قد لا تكون مربحة. العائد المتوقع (${totals.roas.toFixed(2)}x) أقل من نقطة التعادل المطلوبة (${breakEvenRoas.toFixed(2)}x).`
+        },
+        seasonalLift: {
+            applied: data.seasons,
+            insight: seasonalInsights[activeSeason as keyof typeof seasonalInsights]
+        }
+    };
+};
+
+const generateCompetitorSummary = async (industry: string, kpis: { totals: KpiSet }): Promise<string> => {
+    const prompt = `أنت محلل تسويقي. بناءً على مؤشرات الأداء التالية لمنافس نموذجي في مجال "${industry}"، اكتب ملخصًا من جملة إلى جملتين عن استراتيجيته المحتملة. كن مباشرًا ومختصرًا.
+  
+  النتائج:
+  - العائد (ROAS): ${kpis.totals.roas.toFixed(2)}x
+  - تكلفة النقرة (CPC): ${kpis.totals.cpc.toFixed(2)} ريال
+  - تكلفة اكتساب العميل (CAC): ${kpis.totals.cac.toFixed(2)} ريال
+  
+  مثال للإجابة: "يركز المنافسون في هذا المجال على Google Ads لجذب العملاء ذوي النية الشرائية العالية، مع استخدام Meta لزيادة الوعي وإعادة الاستهداف."`;
+
+    try {
+        const response = await ai.models.generateContent({
+            model: "gemini-2.5-flash",
+            contents: prompt,
+            config: {
+                temperature: 0.6,
+                topP: 0.9,
+                topK: 40,
+            }
+        });
+        return response.text;
+    } catch (error) {
+        console.error("فشل في توليد ملخص المنافسين:", error);
+        return "يقوم المنافسون عادةً بتوزيع ميزانيتهم عبر المنصات ذات الأداء الأعلى في هذا المجال لتحقيق أفضل عائد ممكن.";
+    }
+};
+
+const generateAIContent = async (
+    formData: CampaignData,
+    kpis: { totals: KpiSet; perPlatform: { [platform: string]: KpiSet } },
+    anomalies: ValidationFlag[],
+    corrections: any[],
+    advancedInsights: AdvancedInsightsSet,
+    uiWarnings: any[],
+    reallocationDetails: any,
+    competitorMirror?: { summary: string, kpis: { totals: KpiSet } }
+): Promise<any> => {
+    const payload = {
+        inputs: formData,
+        results: { totals: kpis.totals, perPlatform: kpis.perPlatform },
+        advancedInsights: {
+            arpu: { value: advancedInsights.arpu.value },
+            cac: { value: advancedInsights.cac.value, benchmark: advancedInsights.cac.benchmark },
+            breakEvenRoas: { value: advancedInsights.breakEvenRoas.value, benchmark: advancedInsights.breakEvenRoas.benchmark },
+            seasonalLift: { applied: advancedInsights.seasonalLift.applied, insight: advancedInsights.seasonalLift.insight }
+        },
+        anomalies,
+        corrections,
+        reallocationDetails,
+        competitorMirror: competitorMirror ? { summary: competitorMirror.summary, kpis: competitorMirror.kpis.totals } : undefined,
+        uiWarnings
+    };
+    const prompt = buildOrchestratorPrompt(payload);
+    try {
+        const response = await ai.models.generateContent({
+            model: "gemini-2.5-flash",
+            contents: prompt,
+            config: {
+                temperature: 0.6,
+                topP: 0.9,
+                topK: 40,
+                responseMimeType: "application/json",
+                responseSchema: {
+                    type: Type.OBJECT,
+                    properties: {
+                        confidence: { type: Type.NUMBER },
+                        narrative: { type: Type.STRING },
+                        recommendations: { type: Type.ARRAY, items: { type: Type.STRING } },
+                        explainability: {
+                            type: Type.OBJECT,
+                            properties: {
+                                "توزيع الميزانية": { type: Type.STRING },
+                                "تقدير العائد (ROAS)": { type: Type.STRING },
+                                "تكلفة اكتساب العميل (CAC)": { type: Type.STRING },
+                            }
+                        },
+                        generatedAdvancedInsights: {
+                            type: Type.OBJECT,
+                            properties: {
+                                arpu: { type: Type.STRING },
+                                cac: { type: Type.STRING },
+                                breakEvenRoas: { type: Type.STRING },
+                                seasonalLift: { type: Type.STRING }
+                            }
+                        },
+                        generatedAnomalies: {
+                            type: Type.ARRAY,
+                            items: {
+                                type: Type.OBJECT,
+                                properties: {
+                                    kpi: { type: Type.STRING },
+                                    issue: { type: Type.STRING },
+                                    severity: { type: Type.STRING },
+                                    message: { type: Type.STRING },
+                                    expected: { type: Type.STRING },
+                                    actual: { type: Type.STRING }
+                                }
+                            }
+                        },
+                        generatedUiWarnings: {
+                            type: Type.ARRAY,
+                            items: {
+                                type: Type.OBJECT,
+                                properties: {
+                                    code: { type: Type.STRING },
+                                    message: { type: Type.STRING }
+                                }
+                            }
+                        },
+                        checks: {
+                            type: Type.OBJECT,
+                            properties: {
+                                roas_budget_identity_ok: { type: Type.BOOLEAN },
+                                arpu_revenue_identity_ok: { type: Type.BOOLEAN },
+                                awareness_finance_zero_ok: { type: Type.BOOLEAN }
+                            }
+                        }
+                    }
+                }
+            }
+        });
+        const result = JSON.parse(response.text.trim());
+        result.generatedAnomalies = Array.isArray(result.generatedAnomalies) ? result.generatedAnomalies : [];
+        result.generatedUiWarnings = Array.isArray(result.generatedUiWarnings) ? result.generatedUiWarnings : [];
+        result.confidence = Math.max(0, Math.min(1, result.confidence || 0));
+        return result;
+    } catch (error) {
+        console.error("AI content generation failed:", error);
+        return {
+            confidence: 0.50,
+            narrative: `خطة إعلانية مقترحة لميزانية ${formData.budget.toLocaleString()} ريال في مجال ${formData.industry}. من المتوقع تحقيق عائد على الإنفاق (ROAS) يقارب ${kpis.totals.roas.toFixed(2)}x. تم إنشاء هذا الملخص الثابت بسبب خطأ في الاتصال بالذكاء الاصطناعي.`,
+            recommendations: [
+                "ركز على المنصات ذات الأداء الأعلى في مجالك.",
+                "تأكد من أن المحتوى الإعلاني يتوافق مع توقعات جمهورك في الموسم المحدد."
+            ],
+            explainability: {
+                "توزيع الميزانية": "تم التوزيع بناءً على بيانات الأداء المعتادة للمنصات في مجالك.",
+                "تقدير العائد (ROAS)": "تم الحساب بناءً على متوسطات الأداء في السوق السعودي.",
+                "تكلفة اكتساب العميل (CAC)": "تم التقدير بناءً على متوسط تكلفة التحويل في مجالك."
+            },
+            generatedAdvancedInsights: {
+                arpu: advancedInsights.arpu.insight,
+                cac: advancedInsights.cac.insight,
+                breakEvenRoas: advancedInsights.breakEvenRoas.insight,
+                seasonalLift: advancedInsights.seasonalLift.insight,
+            },
+            generatedAnomalies: anomalies,
+            generatedUiWarnings: uiWarnings.map(w => ({ code: w.code, message: "حدث خطأ أثناء إنشاء رسالة التحذير، يرجى مراجعة السياق." })),
+            checks: {
+                roas_budget_identity_ok: true,
+                arpu_revenue_identity_ok: true,
+                awareness_finance_zero_ok: formData.funnelStage !== 'conversion',
+            }
+        };
+    }
+};
+
+function generatePreflightWarnings(formData: CampaignData, platformCompatibility: any, seasonResolution: any): UIWarning[] {
+    const warnings: any[] = [];
+    const minBudget = industryMinBudgetSAR[formData.industry as keyof typeof industryMinBudgetSAR] || industryMinBudgetSAR.default;
+
+    if (formData.budget < minBudget) {
+        warnings.push({
+            code: 'BUDGET_TOO_LOW',
+            severity: 'high',
+            context: { industry: formData.industry, minBudget, userBudget: formData.budget }
+        });
+    }
+
+    if (formData.industry && formData.platforms.length > 0) {
+        platformCompatibility.incompatibilities.forEach((incomp: any) => {
+            const platformName = PLATFORMS.find(p => p.id === incomp.platform)?.name || incomp.platform;
+            warnings.push({
+                code: incomp.issue === 'incompatible' ? 'PLATFORM_INCOMPATIBLE' : 'PLATFORM_DISCOURAGED',
+                severity: incomp.issue === 'incompatible' ? 'medium' : 'low',
+                context: { platform: platformName, industry: formData.industry, suggestions: platformCompatibility.suggestions }
+            });
+        });
+    }
+
+    if (seasonResolution.dropped.length > 0 && seasonResolution.active.length < formData.seasons.filter(s => s !== 'بدون موسم معين').length) {
+        warnings.push({
+            code: 'SEASON_COUNT_EXCEEDED',
+            severity: 'low',
+            context: { dropped: seasonResolution.dropped, active: seasonResolution.active, max: 2 }
+        });
+    }
+
+    seasonResolution.conflicts.forEach((conflict: any) => {
+        warnings.push({ code: 'SEASON_CONFLICT', severity: 'medium', context: { pair: conflict.pair } });
+    });
+
+    return warnings;
+}
+
+// FIX: Export functions that were missing exports
+export const runCampaign = async (formData: CampaignData): Promise<CampaignReport | { errors: string[] }> => {
+    try {
+        const seasonResolution = resolveSeasons(formData.seasons);
+        const platformCompatibility = checkPlatformCompatibility(formData.industry, formData.platforms);
+        const uiWarningsRaw = generatePreflightWarnings(formData, platformCompatibility, seasonResolution);
+
+        const industrySplit = (industrySplits.industries as any)[formData.industry as any]?.defaultPlatformSplit || {};
+        let totalWeight = 0;
+        const platformWeights: { [key: string]: number } = {};
+        formData.platforms.forEach(p => {
+            const weight = industrySplit[p] || 1;
+            platformWeights[p] = weight;
+            totalWeight += weight;
+        });
+
+        const budgetAllocation: { [key: string]: number } = {};
+        let allocatedBudget = 0;
+        formData.platforms.forEach((p, index) => {
+            if (index === formData.platforms.length - 1) {
+                budgetAllocation[p] = formData.budget - allocatedBudget;
+            } else {
+                const budget = totalWeight > 0 ? Math.round((platformWeights[p] / totalWeight) * formData.budget) : Math.round(formData.budget / formData.platforms.length);
+                budgetAllocation[p] = budget;
+                allocatedBudget += budget;
+            }
+        });
+
+        let reallocationDetails: any = null;
+        if (formData.competitorContext === 'high' && formData.platforms.length > 1) {
+            let maxCpc = { p: '', v: -1 };
+            let maxRoas = { p: '', v: -1 };
+            formData.platforms.forEach(p => {
+                const plat = platformBenchmarks.platforms[p as keyof typeof platformBenchmarks.platforms];
+                if (plat) {
+                    if (plat.avg_CPC_SAR > maxCpc.v) maxCpc = { p, v: plat.avg_CPC_SAR };
+                    if (plat.avg_ROAS > maxRoas.v) maxRoas = { p, v: plat.avg_ROAS };
+                }
+            });
+
+            if (maxCpc.p && maxRoas.p && maxCpc.p !== maxRoas.p) {
+                const amountToReallocate = budgetAllocation[maxCpc.p] * 0.10;
+                if (amountToReallocate > 1) {
+                    budgetAllocation[maxCpc.p] -= amountToReallocate;
+                    budgetAllocation[maxRoas.p] += amountToReallocate;
+                    reallocationDetails = {
+                        from: PLATFORMS.find(p => p.id === maxCpc.p)?.name || maxCpc.p,
+                        to: PLATFORMS.find(p => p.id === maxRoas.p)?.name || maxRoas.p,
+                        amount: Math.round(amountToReallocate),
+                    };
+                }
+            }
+        }
+
+        const rawKpis = calculateKpisForBudgetAllocation(budgetAllocation, formData, seasonResolution.active);
+        let { validatedKpis, anomalies, corrections } = validateAndClampKpis(formData, rawKpis);
+        const reconciledFinancials = reconcileFinancials(formData, validatedKpis.totals);
+        validatedKpis.totals = reconciledFinancials.totals;
+        corrections.push(...(Array.isArray(reconciledFinancials.corrections) ? reconciledFinancials.corrections : []));
+        anomalies.push(...(Array.isArray(reconciledFinancials.anomalies) ? reconciledFinancials.anomalies : []));
+        validatedKpis.totals.breakEvenRoas = formData.profitMargin > 0 ? 1 / (formData.profitMargin / 100) : 0;
+        
+        const advancedInsights = generateAdvancedInsights(validatedKpis.totals, formData);
+        
+        let competitorMirror;
+        const competitorSplit = competitorSplits.find(s => s.industry === formData.industry);
+        if (competitorSplit) {
+            const competitorBudgets: { [key: string]: number } = {};
+            Object.entries(competitorSplit.competitor_split).forEach(([platform, ratio]) => {
+                competitorBudgets[platform] = formData.budget * (ratio as number);
+            });
+            const competitorKpis = calculateKpisForBudgetAllocation(competitorBudgets, { ...formData, platforms: Object.keys(competitorBudgets) }, seasonResolution.active);
+            competitorMirror = {
+                summary: await generateCompetitorSummary(formData.industry, competitorKpis),
+                budgetAllocation: competitorBudgets,
+                kpis: competitorKpis,
+            };
+        }
+
+        const aiContent = await generateAIContent(formData, validatedKpis, anomalies, corrections, advancedInsights, uiWarningsRaw, reallocationDetails, competitorMirror);
+        
+        const finalUiWarnings = uiWarningsRaw.map(w => ({
+            ...w,
+            message: aiContent.generatedUiWarnings?.find((gw: any) => gw.code === w.code)?.message || "رسالة تحذير عامة."
+        })).filter(w => w.message);
+
+        const finalAdvancedInsights: AdvancedInsightsSet = { ...advancedInsights };
+        if (aiContent.generatedAdvancedInsights) {
+            finalAdvancedInsights.arpu.insight = aiContent.generatedAdvancedInsights.arpu || "";
+            finalAdvancedInsights.cac.insight = aiContent.generatedAdvancedInsights.cac || "";
+            finalAdvancedInsights.breakEvenRoas.insight = aiContent.generatedAdvancedInsights.breakEvenRoas || "";
+            finalAdvancedInsights.seasonalLift.insight = aiContent.generatedAdvancedInsights.seasonalLift || "";
+        }
+        
+        return {
+            industry: formData.industry,
+            goals: formData.goals,
+            funnelStage: formData.funnelStage,
+            narrative: aiContent.narrative,
+            recommendations: aiContent.recommendations,
+            explainability: aiContent.explainability,
+            confidence: aiContent.confidence,
+            budgetAllocation,
+            kpis: validatedKpis,
+            advancedInsights: finalAdvancedInsights,
+            anomalies: [...aiContent.generatedAnomalies, ...anomalies],
+            corrections,
+            aiChecks: aiContent.checks,
+            uiWarnings: finalUiWarnings,
+            trace: {
+                seasonResolution,
+                platformCompatibility,
+                validationSummary: { anomaliesCount: anomalies.length, correctionsCount: corrections.length },
+                timestamp: new Date().toISOString()
+            },
+            traceId: `${Date.now().toString(36)}-${Math.random().toString(36).substring(2)}`,
+            competitorMirror,
+        };
+    } catch (error) {
+        console.error("Fatal error in runCampaign:", error);
+        return { errors: [`${error}`] };
+    }
+};
+
+const brandDetailsSchema = {
+    type: Type.OBJECT,
+    properties: {
+        usp: { type: Type.STRING },
+        brandTone: { type: Type.STRING },
+        extraDetails: { type: Type.STRING },
+    },
+    required: ["usp", "brandTone", "extraDetails"],
+};
+
+export const enhanceBrandDetails = async (details: { usp: string; brandTone: string; extraDetails: string; }): Promise<BrandContext> => {
+    const prompt = `Refine and structure this information into a professional format. User input: USP: "${details.usp || "N/A"}", Tone: "${details.brandTone || "N/A"}", Details: "${details.extraDetails || "N/A"}". Return a JSON object.`;
+    try {
+        const response = await ai.models.generateContent({
+            model: "gemini-2.5-flash",
+            contents: prompt,
+            config: {
+                temperature: 0.6,
+                topP: 0.9,
+                topK: 40,
+                responseMimeType: "application/json",
+                responseSchema: brandDetailsSchema,
+            },
+        });
+        return JSON.parse(response.text.trim());
+    } catch (error) {
+        console.error("AI brand details enhancement failed:", error);
+        throw new Error("Failed to enhance brand details with AI.");
+    }
+};
+
+const brandBriefSchema = {
+    type: Type.OBJECT,
+    properties: {
+        brandName: { type: Type.STRING },
+        usp: { type: Type.STRING },
+        brandTone: { type: Type.STRING },
+        extraDetails: { type: Type.STRING },
+    },
+    required: ["brandName", "usp", "brandTone", "extraDetails"],
+};
+
+export const generateBrandBriefFromText = async (text: string): Promise<BrandContext> => {
+    const prompt = `Analyze the following website text and extract brand information in Arabic. Text: """${text.substring(0, 15000)}""" Return a JSON object matching the schema.`;
+    try {
+        const response = await ai.models.generateContent({
+            model: "gemini-2.5-flash",
+            contents: prompt,
+            config: {
+                temperature: 0.6,
+                topP: 0.9,
+                topK: 40,
+                responseMimeType: "application/json",
+                responseSchema: brandBriefSchema,
+            },
+        });
+        return JSON.parse(response.text.trim());
+    } catch (error) {
+        console.error("AI brand brief generation failed:", error);
+        throw new Error("فشل الذكاء الاصطناعي في تحليل محتوى الموقع.");
+    }
+};
+
+export const generateRealtimeValidationTips = async (data: Partial<CampaignData>): Promise<Record<string, string>> => {
+    if (!data.industry) return {};
+    const issues: any[] = [];
+    
+    const minBudget = industryMinBudgetSAR[data.industry as keyof typeof industryMinBudgetSAR] || industryMinBudgetSAR.default;
+    if (data.budget! < minBudget) {
+        issues.push({ field: 'budget', context: { industry: data.industry, userBudget: data.budget, minBudget } });
+    }
+
+    const seasonResolution = resolveSeasons(data.seasons || []);
+    if (seasonResolution.conflicts.length > 0 || seasonResolution.dropped.length > 0) {
+        issues.push({ field: 'seasons', context: { ...seasonResolution } });
+    }
+
+    const platformCompatibility = checkPlatformCompatibility(data.industry, data.platforms || []);
+    if (platformCompatibility.incompatibilities.length > 0) {
+        issues.push({ field: 'platforms', context: { ...platformCompatibility } });
+    }
+
+    if(data.targetAudience?.age && data.targetAudience.age.length > 1) {
+        issues.push({ field: 'age_targeting', context: { count: data.targetAudience.age.length }})
+    }
+    
+    if (issues.length === 0) return {};
+    
+    const prompt = `Analyze the following campaign planning issues and provide concise, actionable tips in Saudi dialect. Issues: ${JSON.stringify(issues)}. Return a JSON object where keys are field names ('budget', 'seasons', etc.) and values are the tips.`;
+    
+    try {
+        const response = await ai.models.generateContent({
+            model: "gemini-2.5-flash",
+            contents: prompt,
+            config: {
+                temperature: 0.6,
+                topP: 0.9,
+                topK: 40,
+                responseMimeType: "application/json",
+                responseSchema: {
+                    type: Type.OBJECT,
+                    properties: {
+                        budget: { type: Type.STRING, nullable: true },
+                        seasons: { type: Type.STRING, nullable: true },
+                        platforms: { type: Type.STRING, nullable: true },
+                        age_targeting: { type: Type.STRING, nullable: true },
+                    },
+                },
+            },
+        });
+        return JSON.parse(response.text.trim());
+    } catch (error) {
+        console.error("AI validation tip generation failed:", error);
+        return {};
+    }
+};
+
+export const preflightValidation = async (data: CampaignData): Promise<UIWarning[]> => {
+    const platformCompatibility = checkPlatformCompatibility(data.industry, data.platforms);
+    const seasonResolution = resolveSeasons(data.seasons);
+    const rawWarnings = generatePreflightWarnings(data, platformCompatibility, seasonResolution);
+    
+    if (rawWarnings.length === 0) return [];
+    
+    try {
+        const prompt = buildUIWarningPrompt(rawWarnings);
+        const response = await ai.models.generateContent({
+            model: "gemini-2.5-flash",
+            contents: prompt,
+            config: {
+                temperature: 0.6,
+                topP: 0.9,
+                topK: 40,
+                responseMimeType: "application/json",
+            },
+        });
+        const generatedMessages = JSON.parse(response.text.trim());
+        return rawWarnings.map(w => ({
+            ...w,
+            message: generatedMessages.find((gm: any) => gm.code === w.code)?.message || "يوجد ملاحظة على هذا المدخل.",
+        }));
+    } catch (error) {
+        console.error("AI preflight warning generation failed:", error);
+        return rawWarnings.map(w => ({
+            ...w,
+            message: `يوجد ملاحظة بخصوص المدخلات (الكود: ${w.code})`,
+        }));
+    }
+};
+
+export const generateGreeting = async () => {
+    const prompt = "Generate a short, friendly greeting in Saudi Arabic for a marketing campaign planning tool. The user is about to describe their campaign in a colloquial way. The greeting should be encouraging and welcoming.";
+    return ai.models.generateContentStream({
+        model: "gemini-2.5-flash",
+        contents: prompt,
+        config: {
+            temperature: 0.6,
+            topP: 0.9,
+            topK: 40,
+        },
+    });
+};
+
+const campaignDataSchema = {
+    type: Type.OBJECT,
+    properties: {
+        industry: { type: Type.STRING, description: `The industry of the business. Choose from: ${Object.keys(INDUSTRIES).join(', ')}` },
+        subIndustry: { type: Type.STRING, description: 'The sub-industry if applicable.' },
+        budget: { type: Type.NUMBER, description: 'The total campaign budget in SAR.' },
+        duration: { type: Type.STRING, description: `Campaign duration. Choose from: ${CAMPAIGN_DURATIONS.map(d=>d.id).join(', ')}` },
+        targetAudience: {
+            type: Type.OBJECT,
+            properties: {
+                age: { type: Type.ARRAY, items: { type: Type.STRING }, description: `Target age groups. Choose from: ${AUDIENCE_AGES.join(', ')}` },
+                gender: { type: Type.STRING, description: `Target gender. Choose from: ${AUDIENCE_GENDERS.join(', ')}` },
+                locations: { type: Type.ARRAY, items: { type: Type.STRING }, description: `Target locations. Choose from: ${AUDIENCE_LOCATIONS.join(', ')}` },
+            },
+        },
+        goals: { type: Type.ARRAY, items: { type: Type.STRING }, description: `Campaign goals. Choose from: ${Object.keys(GOALS).join(', ')}` },
+        platforms: { type: Type.ARRAY, items: { type: Type.STRING }, description: `Advertising platforms. Choose from: ${PLATFORMS.map(p => p.id).join(', ')}` },
+        seasons: { type: Type.ARRAY, items: { type: Type.STRING }, description: `Seasonal events. Choose from: ${SEASONS.map(s => s.id).join(', ')}` },
+    },
+};
+
+export const parsePromptWithAI = async (prompt: string): Promise<Partial<CampaignData>> => {
+    const systemInstruction = `You are an expert marketing campaign planner in Saudi Arabia. Your task is to parse a user's colloquial Arabic prompt describing a marketing campaign and extract structured data from it. Fill in as much information as you can based on the prompt. If a value is not mentioned, leave it out of the JSON. Make intelligent defaults where appropriate (e.g., if user says 'Riyadh and Jeddah', locations should be ['الرياض', 'جدة']). The currency is always SAR.`;
+    const fullPrompt = `Parse the following user prompt and extract campaign data into a JSON object:\n\n"${prompt}"`;
+    
+    try {
+        const response = await ai.models.generateContent({
+            model: "gemini-2.5-flash",
+            contents: fullPrompt,
+            config: {
+                systemInstruction,
+                temperature: 0.6,
+                topP: 0.9,
+                topK: 40,
+                responseMimeType: "application/json",
+                responseSchema: campaignDataSchema,
+            },
+        });
+        
+        const parsedJson = JSON.parse(response.text);
+        // Clean up the data, map to correct IDs etc.
+        if (parsedJson.platforms) {
+            parsedJson.platforms = parsedJson.platforms.map((p: string) => {
+                const found = PLATFORMS.find(pf => pf.name.toLowerCase().includes(p.toLowerCase()) || pf.id.toLowerCase().includes(p.toLowerCase()));
+                return found ? found.id : p;
+            });
+        }
+        return parsedJson;
+    } catch (error) {
+        console.error("Gemini prompt parsing failed:", error);
+        throw new Error("لم أتمكن من فهم طلبك. هل يمكنك إعادة صياغته؟");
+    }
+};

@@ -1,0 +1,47 @@
+export const userTypes = {
+  "userTypes": {
+    "MediaBuyer": {
+      "label": "ميديا باير",
+      "primaryGoals": [
+        "الحصول على تقدير سريع للتكلفة والـ KPIs",
+        "اختبار توزيعات ميزانية مختلفة",
+        "إقناع العميل داخل الميتنج بسرعة"
+      ],
+      "preferredOutputs": [
+        "تفاصيل كاملة عن CPM, CTR, CPC, ROAS",
+        "جداول مقارنة بين المنصات",
+        "Recommendations عملية لزيادة الأداء"
+      ],
+      "reportMode": "marketer",
+      "languageTone": "تقني لكن مختصر",
+      "examples": [
+        "كم ممكن يجيب لي TikTok Leads بميزانية 30K؟",
+        "وش الفرق لو وزعت 40% على Meta و60% على Search؟"
+      ]
+    },
+    "Founder": {
+      "label": "فاوندر / صاحب بيزنس",
+      "primaryGoals": [
+        "فهم سريع لوش النتائج المتوقعة",
+        "معرفة ROI / ROAS المتوقع",
+        "تقرير بصري يقدر يشاركه مع الفريق/المستثمرين"
+      ],
+      "preferredOutputs": [
+        "Big Numbers (Impressions, Clicks, Conversions, ROI)",
+        "Charts واضحة أكثر من جداول",
+        "توصيات سهلة التنفيذ"
+      ],
+      "reportMode": "client",
+      "languageTone": "بسيط، بصري، بدون مصطلحات تقنية معقدة",
+      "examples": [
+        "إذا صرفنا 100K في رمضان، كم ممكن يرجع لنا؟",
+        "وش القنوات الأفضل لزيادة المبيعات في الصيف؟"
+      ]
+    }
+  },
+  "switchingLogic": {
+    "default": "MediaBuyer",
+    "manualSwitch": true,
+    "note": "اليوزر يقدر يختار نوع التقرير من الإعدادات أو من أول شاشة."
+  }
+} as const;

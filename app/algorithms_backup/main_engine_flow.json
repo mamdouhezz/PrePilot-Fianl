@@ -1,0 +1,81 @@
+{
+  "engine": "prepilot_core",
+  "version": "1.0",
+  "description": "Main pipeline to process campaign inputs into media buying plan with KPIs, allocations, and recommendations.",
+  "stages": [
+    {
+      "stage": 1,
+      "name": "Validation",
+      "file": "validation.json",
+      "description": "تحقق من المدخلات: الصناعة، الميزانية، الأهداف، المنصات، الموسم",
+      "output": "isValid + errors"
+    },
+    {
+      "stage": 2,
+      "name": "Budget Allocation",
+      "file": "budget_allocation.json",
+      "description": "وزّع الميزانية على المنصات باستخدام industry_splits.json + goal_weights.json",
+      "output": "budget allocation per platform"
+    },
+    {
+      "stage": 3,
+      "name": "Seasonality Adjustment",
+      "file": "seasonality_adjustment.json",
+      "description": "طبق multipliers الخاصة بالمواسم (رمضان، الحج، الصيف، الجمعة البيضاء...)",
+      "output": "adjusted CPM, CTR, CPC, CVR"
+    },
+    {
+      "stage": 4,
+      "name": "KPI Estimation",
+      "file": "kpi_estimation.json",
+      "description": "حوّل الميزانية الموزعة + المعدلات الموسمية إلى KPIs رقمية (Impressions, Clicks, Conversions, ROAS)",
+      "output": "full KPI report per platform"
+    },
+    {
+      "stage": 5,
+      "name": "Recommendations",
+      "file": "recommendations.json",
+      "description": "اعرض اقتراحات إضافية مثل منصات مناسبة، إعادة توزيع، أو خفض/رفع ميزانية",
+      "output": "recommendations list"
+    },
+    {
+      "stage": 6,
+      "name": "Final Report",
+      "description": "دمج النتائج (allocation + KPIs + adjustments + recommendations) في تقرير واحد قابل للعرض والتصدير PDF",
+      "output": "media plan report"
+    }
+  ],
+  "example": {
+    "input": {
+      "industry": "E-commerce",
+      "budget": 100000,
+      "goals": ["Sales", "Traffic"],
+      "selectedPlatforms": ["Meta", "Google Search"],
+      "season": "Ramadan"
+    },
+    "output": {
+      "allocation": {
+        "Meta": 40000,
+        "Google Search": 60000
+      },
+      "KPIs": {
+        "Meta": {
+          "impressions": 800000,
+          "clicks": 12000,
+          "conversions": 480,
+          "ROAS": 3.8
+        },
+        "Google Search": {
+          "impressions": 1000000,
+          "clicks": 15000,
+          "conversions": 750,
+          "ROAS": 4.1
+        }
+      },
+      "recommendations": [
+        "خلال رمضان TikTok يعطي نتائج قوية للوعي — فكر تضيفه.",
+        "لو تبغى Leads إضافية خصص 15% زيادة لـ Google Search."
+      ]
+    }
+  }
+}

@@ -1,0 +1,53 @@
+{
+  "industries": {
+    "E-commerce": {
+      "avg_CPM_SAR": 5.0,
+      "avg_CPC_SAR": 0.75,
+      "avg_CTR_percent": 1.4,
+      "avg_CVR_percent": 2.5,
+      "preferredPlatforms": ["Meta", "TikTok", "Google Search", "Snapchat"],
+      "notes": "أكثر صناعة نموًا في الإعلانات الرقمية بالسعودية"
+    },
+    "Real Estate": {
+      "avg_CPM_SAR": 8.0,
+      "avg_CPC_SAR": 2.0,
+      "avg_CTR_percent": 1.1,
+      "avg_CVR_percent": 4.0,
+      "preferredPlatforms": ["Google Search", "YouTube", "Meta"],
+      "notes": "قطاع عالي المنافسة وCTR متوسط، لكن CVR ممتاز عند استهداف صحيح"
+    },
+    "Healthcare": {
+      "avg_CPM_SAR": 7.5,
+      "avg_CPC_SAR": 1.6,
+      "avg_CTR_percent": 1.2,
+      "avg_CVR_percent": 3.5,
+      "preferredPlatforms": ["Google Search", "Meta", "Snapchat"],
+      "notes": "المستشفيات والعيادات تعتمد على Search + Awareness campaigns"
+    },
+    "Education": {
+      "avg_CPM_SAR": 6.0,
+      "avg_CPC_SAR": 1.2,
+      "avg_CTR_percent": 1.5,
+      "avg_CVR_percent": 3.8,
+      "preferredPlatforms": ["Google Search", "Meta", "LinkedIn"],
+      "notes": "مهم خاصة وقت التسجيلات والفصول الدراسية"
+    },
+    "Automotive": {
+      "avg_CPM_SAR": 7.8,
+      "avg_CPC_SAR": 2.2,
+      "avg_CTR_percent": 1.0,
+      "avg_CVR_percent": 3.2,
+      "preferredPlatforms": ["Google Search", "YouTube", "Meta"],
+      "notes": "مناسب للحملات الكبيرة والسيارات الجديدة"
+    },
+    "B2B SaaS": {
+      "avg_CPM_SAR": 24.0,
+      "avg_CPC_SAR": 5.5,
+      "avg_CTR_percent": 0.6,
+      "avg_CVR_percent": 2.8,
+      "preferredPlatforms": ["LinkedIn", "Google Search", "Meta"],
+      "notes": "مكلف لكن دقيق، LinkedIn أساسي"
+    }
+  },
+  "source": "تحليل السوق السعودي + خبرات تشغيلية + تقارير معلنة"
+}

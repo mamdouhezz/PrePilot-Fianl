@@ -1,0 +1,61 @@
+{
+  "platforms": {
+    "Meta": {
+      "avg_CPM_SAR": 5.5,
+      "avg_CPC_SAR": 0.80,
+      "avg_CTR_percent": 1.2,
+      "avg_CVR_percent": 3.0,
+      "notes": "أقوى منصة للبيع المباشر والـ remarketing في السعودية"
+    },
+    "Google Search": {
+      "avg_CPM_SAR": 7.0,
+      "avg_CPC_SAR": 1.5,
+      "avg_CTR_percent": 2.8,
+      "avg_CVR_percent": 5.5,
+      "notes": "أفضل قناة للـ intent المباشر (عقارات، سيارات، عيادات)"
+    },
+    "YouTube": {
+      "avg_CPM_SAR": 6.0,
+      "avg_CPC_SAR": 1.2,
+      "avg_CTR_percent": 0.9,
+      "avg_CVR_percent": 1.8,
+      "notes": "مناسب لحملات الوعي والفيديو الطويل"
+    },
+    "TikTok": {
+      "avg_CPM_SAR": 4.5,
+      "avg_CPC_SAR": 0.60,
+      "avg_CTR_percent": 1.5,
+      "avg_CVR_percent": 2.0,
+      "notes": "فعّال جدًا للمنتجات الـ lifestyle والـ e-commerce"
+    },
+    "Snapchat": {
+      "avg_CPM_SAR": 3.8,
+      "avg_CPC_SAR": 0.70,
+      "avg_CTR_percent": 1.0,
+      "avg_CVR_percent": 1.6,
+      "notes": "قوي مع الشباب في السعودية، خصوصًا للـ fast moving products"
+    },
+    "LinkedIn": {
+      "avg_CPM_SAR": 25.0,
+      "avg_CPC_SAR": 6.0,
+      "avg_CTR_percent": 0.5,
+      "avg_CVR_percent": 3.5,
+      "notes": "أفضل قناة للـ B2B، لكن تكلفتها أعلى بكثير"
+    },
+    "Twitter": {
+      "avg_CPM_SAR": 8.0,
+      "avg_CPC_SAR": 1.8,
+      "avg_CTR_percent": 0.8,
+      "avg_CVR_percent": 1.2,
+      "notes": "قوي للأخبار والـ trending topics، لكنه أضعف في المبيعات المباشرة"
+    },
+    "Google Display": {
+      "avg_CPM_SAR": 3.5,
+      "avg_CPC_SAR": 0.50,
+      "avg_CTR_percent": 0.6,
+      "avg_CVR_percent": 0.9,
+      "notes": "مناسب للـ retargeting والتغطية الواسعة"
+    }
+  },
+  "source": "تحليل سوق السعودية + خبرة تشغيلية + تقارير معلنة من Meta و Google"
+}

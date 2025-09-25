@@ -1,0 +1,65 @@
+{
+  "algorithm": "recommendations",
+  "version": "1.0",
+  "description": "Suggests optimization tips, alternative strategies, and next actions based on campaign inputs and outputs.",
+  "logic": [
+    {
+      "condition": "CTR < benchmark",
+      "suggestion": "جرب تغيّر نوع المحتوى (فيديو قصير أو Reels) لأنه CTR عندك أقل من متوسط السوق."
+    },
+    {
+      "condition": "CPC > benchmark",
+      "suggestion": "قلل الـ audience broadness أو عدل الـ targeting عشان تقل التكلفة."
+    },
+    {
+      "condition": "Conversions < target",
+      "suggestion": "زود الميزانية للمنصات اللي أداءها أعلى أو جرّب منصات بديلة مثل TikTok أو Snapchat."
+    },
+    {
+      "condition": "ROAS < 2x",
+      "suggestion": "ركز على حملات Retargeting لأنها عادةً تعطي ROAS أعلى."
+    },
+    {
+      "condition": "Budget < 50000",
+      "suggestion": "خلك مركز على منصتين بالكثير عشان ما يتشتت الإنفاق."
+    },
+    {
+      "condition": "Season = Ramadan",
+      "suggestion": "استخدم محتوى رمضاني + عروض خاصة، CPM عادة يرتفع لكن CTR يزيد لو المحتوى مرتبط بالموسم."
+    },
+    {
+      "condition": "Objective = Awareness",
+      "suggestion": "اعتمد على منصات الفيديو مثل YouTube وTikTok لأنها تحقق CPM منخفض مع وصول واسع."
+    },
+    {
+      "condition": "Objective = Leads",
+      "suggestion": "جرّب Lead Ads مباشرة داخل المنصات مثل Meta Ads قبل التوجيه لصفحة خارجية."
+    }
+  ],
+  "outputs": {
+    "recommendations": "list of actionable tips",
+    "priority_level": "low | medium | high"
+  },
+  "example": {
+    "input": {
+      "industry": "Real Estate",
+      "budget": 80000,
+      "objective": "Leads",
+      "platforms": ["Meta", "Google"],
+      "results": {
+        "CTR": 0.7,
+        "CPC": 8.5,
+        "Conversions": 120,
+        "ROAS": 1.8
+      }
+    },
+    "output": {
+      "recommendations": [
+        "CTR عندك أقل من benchmark (1.2%). جرب إعلانات فيديو أو Carousel.",
+        "ROAS تحت 2x. يفضل إضافة Retargeting budget.",
+        "CPC مرتفع. ضيق الـ audience أو استخدم Automated Bidding."
+      ],
+      "priority_level": "high"
+    }
+  }
+}
