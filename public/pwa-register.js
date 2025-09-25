@@ -9,8 +9,8 @@
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', async () => {
     try {
-      const registration = await navigator.serviceWorker.register('/app/public/sw.js', {
-        scope: '/app/public/'
+      const registration = await navigator.serviceWorker.register('/sw.js', {
+        scope: '/'
       });
       
       console.log('PWA: Service Worker registered successfully', registration);
